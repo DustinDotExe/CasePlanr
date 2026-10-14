@@ -2,11 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { auth, db } from '../firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Participant, AuditLogEntry, AuditCategory } from '../types';
-import { subscribeToAuditLog, deleteAuditEntry, updateAuditEntry } from '../services/auditService';
+import { subscribeToAuditLog } from '../services/auditService';
 import { hearingBriefStream } from '../services/geminiService';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Separator } from './ui/separator';
 import {
@@ -89,7 +88,7 @@ type FilterKey = 'completed_goals' | 'all_goals' | 'milestones' | 'observations'
 
 const FILTERS: { key: FilterKey; label: string; categories: AuditCategory[] | null }[] = [
   { key: 'completed_goals', label: 'Completed Goals', categories: ['goal_completed'] },
-  { key: 'all_goals',       label: 'All Goals',       categories: ['goal_added', 'goal_deleted', 'goal_edited', 'goal_completed'] },
+  { key: 'all_goals',       label: 'All Goals',       categories: ['goal_added', 'goal_deleted', 'goal_edited', 'goal_completed', 'goal_uncompleted'] },
   { key: 'milestones',      label: 'Milestones',      categories: ['phase_transition'] },
   { key: 'observations',    label: 'Observations',    categories: ['observation_updated', 'iras_domain_updated'] },
   { key: 'profile',         label: 'Profile',         categories: ['participant_created', 'participant_deleted', 'participant_info_updated'] },
@@ -162,16 +161,6 @@ export default function AuditLog({ participant }: { participant: Participant }) 
     };
   }, []);
 
-  // delete state
-  const [confirmingDelete, setConfirmingDelete] = useState<string | null>(null);
-
-  // edit state
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editDescription, setEditDescription] = useState('');
-  const [editNewValue, setEditNewValue] = useState('');
-  const [editDate, setEditDate] = useState('');
-  const [saving, setSaving] = useState(false);
-
   // error banner
   const [error, setError] = useState<string | null>(null);
 
@@ -234,63 +223,10 @@ export default function AuditLog({ participant }: { participant: Participant }) 
     return () => unsubscribe();
   }, [participant.id]);
 
-  const toDateInputValue = (timestamp: any): string => {
-    if (!timestamp) return '';
-    const d: Date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  };
-
-  const startEdit = (entry: AuditLogEntry) => {
-    setConfirmingDelete(null);
-    setEditingId(entry.id);
-    setEditDescription(entry.description);
-    setEditNewValue(entry.details?.newValue ?? '');
-    setEditDate(toDateInputValue(entry.timestamp));
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setEditDescription('');
-    setEditNewValue('');
-    setEditDate('');
-  };
-
-  const saveEdit = async (entry: AuditLogEntry) => {
-    if (!editDescription.trim()) return;
-    setSaving(true);
-    try {
-      const updatedDetails = entry.details
-        ? { ...entry.details, newValue: editNewValue || undefined }
-        : null;
-      // Use noon to avoid UTC/local timezone date drift
-      const date = editDate ? new Date(editDate + 'T12:00:00') : undefined;
-      await updateAuditEntry(entry.id, editDescription.trim(), updatedDetails, date);
-      cancelEdit();
-    } catch (err: any) {
-      console.error('Failed to update audit entry:', err);
-      setError(`Failed to save changes: ${err?.code ?? err?.message ?? 'unknown error'}`);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteAuditEntry(id);
-      setConfirmingDelete(null);
-    } catch (err: any) {
-      console.error('Failed to delete audit entry:', err);
-      setError(`Failed to delete entry: ${err?.code ?? err?.message ?? 'unknown error'}`);
-      setConfirmingDelete(null);
-    }
-  };
-
   const filterDef = FILTERS.find(f => f.key === activeFilter)!;
-  const visible = (filterDef.categories
+  const visible = filterDef.categories
     ? entries.filter(e => filterDef.categories!.includes(e.category))
-    : entries
-  ).filter(e => e.category !== 'goal_uncompleted' && !e.description?.startsWith('Milestone Unchecked'));
+    : entries;
 
   if (loading) {
     return (
@@ -464,47 +400,6 @@ export default function AuditLog({ participant }: { participant: Participant }) 
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {visible.map((entry) => (
                 <div key={entry.id} className="px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-
-                  {editingId === entry.id ? (
-                    /* ── inline edit mode ───────────────────────── */
-                    <div className="space-y-2">
-                      <Input
-                        value={editDescription}
-                        onChange={e => setEditDescription(e.target.value)}
-                        placeholder="Description"
-                        className="h-8 text-xs bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500"
-                        autoFocus
-                      />
-                      {entry.details?.newValue !== undefined && (
-                        <Textarea
-                          value={editNewValue}
-                          onChange={e => setEditNewValue(e.target.value)}
-                          placeholder="Value"
-                          className="text-xs min-h-[64px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
-                        />
-                      )}
-                      <Input
-                        type="date"
-                        value={editDate}
-                        onChange={e => setEditDate(e.target.value)}
-                        className="h-8 text-xs bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500"
-                      />
-                      <div className="flex gap-2 justify-end">
-                        <Button size="sm" variant="ghost" onClick={cancelEdit} className="h-7 text-xs text-slate-500">
-                          <X className="w-3 h-3" /> Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          onClick={() => saveEdit(entry)}
-                          disabled={saving || !editDescription.trim()}
-                          className="h-7 text-xs bg-accent-600 hover:bg-accent-700 text-white"
-                        >
-                          {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />} Save
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* ── normal view mode ───────────────────────── */
                     <div className="flex gap-4">
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${getActionColors(entry.action)}`}
@@ -520,7 +415,7 @@ export default function AuditLog({ participant }: { participant: Participant }) 
 
                         {entry.details?.newValue && (
                           <p className={`mt-1.5 text-sm leading-relaxed ${
-                            entry.category === 'goal_completed'
+                            entry.category === 'goal_completed' || entry.category === 'goal_uncompleted'
                               ? 'text-slate-600 dark:text-slate-300'
                               : 'text-slate-500 dark:text-slate-400'
                           }`}>
@@ -528,7 +423,7 @@ export default function AuditLog({ participant }: { participant: Participant }) 
                           </p>
                         )}
 
-                        {entry.details?.oldValue && entry.details?.newValue && entry.category !== 'goal_completed' && (
+                        {entry.details?.oldValue && entry.details?.newValue && entry.category !== 'goal_completed' && entry.category !== 'goal_uncompleted' && (
                           <div className="mt-1.5 flex items-start gap-2 text-xs bg-slate-50 dark:bg-slate-800 rounded-lg px-2.5 py-1.5 w-fit max-w-full text-slate-500 dark:text-slate-400">
                             <span className="break-all">{entry.details.oldValue}</span>
                             <ArrowRight className="w-3 h-3 shrink-0 mt-0.5" />
@@ -549,45 +444,7 @@ export default function AuditLog({ participant }: { participant: Participant }) 
                           <span title={formatFullTimestamp(entry.timestamp)}>{formatTimestamp(entry.timestamp)}</span>
                         </div>
                       </div>
-
-                      {/* action buttons */}
-                      <div className="shrink-0 flex flex-col items-end gap-1 pt-0.5 no-print">
-                        {confirmingDelete === entry.id ? (
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => handleDelete(entry.id)}
-                              className="text-[11px] font-semibold px-2 py-0.5 rounded bg-red-100 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-                            >
-                              Confirm
-                            </button>
-                            <button
-                              onClick={() => setConfirmingDelete(null)}
-                              className="p-1 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => startEdit(entry)}
-                              title="Edit entry"
-                              className="p-1 rounded text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-                            <button
-                              onClick={() => { setEditingId(null); setConfirmingDelete(entry.id); }}
-                              title="Delete entry"
-                              className="p-1 rounded text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
                     </div>
-                  )}
                 </div>
               ))}
             </div>

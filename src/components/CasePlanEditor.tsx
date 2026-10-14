@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { db } from '../firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Participant, CurrentUser, MilestonePhase } from '../types';
-import { logAuditEvent, retractAuditEntry } from '../services/auditService';
+import { logAuditEvent } from '../services/auditService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Checkbox } from './ui/checkbox';
 import { Label } from './ui/label';
@@ -190,21 +190,13 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
         irasDomains: newDomains,
         updatedAt: serverTimestamp()
       });
-      if (isSelected) {
-        retractAuditEntry(
-          participant.id,
-          participant.uid,
-          e => e.category === 'iras_domain_updated' && e.description === `Target Domain Added: ${domain}`
-        );
-      } else {
-        logAuditEvent({
-          participantId: participant.id,
-          caseManagerUid: participant.uid,
-          category: 'iras_domain_updated',
-          description: `Target Domain Added: ${domain}`,
-          currentUser
-        });
-      }
+      logAuditEvent({
+        participantId: participant.id,
+        caseManagerUid: participant.uid,
+        category: 'iras_domain_updated',
+        description: isSelected ? `Target Domain Removed: ${domain}` : `Target Domain Added: ${domain}`,
+        currentUser
+      });
     } catch (err) {
       console.error("Update IRAS Error:", err);
     }
@@ -227,22 +219,16 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
         updatedAt: serverTimestamp()
       });
       const phaseName = milestonePhases[phaseIndex]?.label ?? phaseKey;
-      if (completing) {
-        logAuditEvent({
-          participantId: participant.id,
-          caseManagerUid: participant.uid,
-          category: 'phase_transition',
-          description: `Milestone Completed: ${phaseName}`,
-          details: { newValue: `Phase ${newPhase}` },
-          currentUser
-        });
-      } else {
-        retractAuditEntry(
-          participant.id,
-          participant.uid,
-          e => e.category === 'phase_transition' && e.description === `Milestone Completed: ${phaseName}`
-        );
-      }
+      logAuditEvent({
+        participantId: participant.id,
+        caseManagerUid: participant.uid,
+        category: 'phase_transition',
+        description: completing
+          ? `Milestone Completed: ${phaseName}`
+          : `Milestone Unchecked: ${phaseName}`,
+        details: { newValue: `Phase ${newPhase}` },
+        currentUser
+      });
     } catch (err) {
       console.error("Update Error:", err);
     }

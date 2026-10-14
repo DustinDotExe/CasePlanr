@@ -400,6 +400,13 @@ export default function App() {
         details: { field: 'caseNumber', oldValue: selectedParticipant.caseNumber },
         currentUser: { uid: user.uid, displayName: user.displayName, email: user.email }
       });
+      // Revoke the public portal before deleting the participant so the share
+      // URL cannot outlive the case record.
+      if (selectedParticipant.shareToken) {
+        await deleteDoc(doc(db, 'participantPortals', selectedParticipant.shareToken)).catch((err) => {
+          console.error('Portal revoke during participant delete failed:', err);
+        });
+      }
       await deleteDoc(doc(db, 'participants', selectedParticipantId));
       setSelectedParticipantId(null);
       setIsDeleting(false);

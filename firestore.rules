@@ -18,13 +18,20 @@ service cloud.firestore {
     //   caseNumber: string (required, max 50)
     //   currentPhase: int 1-5 (required)
     //   milestones: map { phase1-5: bool } (required)
-    //   goals: list<string> (optional, max 50 entries)
-    //   completedGoals: list<string> (optional, max 50 entries)
+    //   goals: list (optional, max 50 entries)
+    //   completedGoals: list (optional, max 50 entries)
     //   notes: string (optional, max 10000 chars)
     //   irasDomains: list<string> (optional, max 20 entries)
     //   uid: string (required, owner — immutable after creation)
     //   createdAt: timestamp (required)
     //   updatedAt: timestamp (required)
+    //
+    // Collection: auditLog/{logId}
+    //   Append-only from clients. Updates/deletes require Admin SDK.
+    //
+    // Collection: participantPortals/{token}
+    //   Public get by document ID (share token). Listing is denied.
+    //   Unauthenticated writers may set participantSignature only once.
     //
     // ===============================================================
 
@@ -102,13 +109,25 @@ service cloud.firestore {
              (!('shareToken' in data) || data.shareToken == null || data.shareToken is string);
     }
 
+    // Drawn signatures must be inline PNG/JPEG data URIs (no remote URLs). Cap size ~150KB.
+    function isValidImageData(imageData) {
+      return imageData is string &&
+             imageData.size() > 22 &&
+             imageData.size() <= 200000 &&
+             imageData.matches('^data:image/(png|jpeg);base64,[A-Za-z0-9+/=]+$');
+    }
+
     function isValidSignature(sig) {
       return sig is map &&
+             sig.keys().hasOnly(['name', 'signedAt', 'type', 'imageData']) &&
              sig.keys().hasAll(['name', 'signedAt', 'type']) &&
              sig.name is string && sig.name.size() > 0 && sig.name.size() <= 100 &&
-             sig.signedAt is string &&
+             sig.signedAt is string && sig.signedAt.size() > 0 && sig.signedAt.size() <= 40 &&
              sig.type in ['drawn', 'typed'] &&
-             (!('imageData' in sig) || sig.imageData is string);
+             (
+               (sig.type == 'typed' && !('imageData' in sig)) ||
+               (sig.type == 'drawn' && 'imageData' in sig && isValidImageData(sig.imageData))
+             );
     }
 
     function isValidPortalDocument(data) {
@@ -167,6 +186,74 @@ service cloud.firestore {
              (!('participantSignature' in data) || isValidSignature(data.participantSignature));
     }
 
+    function isValidAuditCategory(category) {
+      return category in [
+        'participant_created',
+        'participant_deleted',
+        'participant_info_updated',
+        'phase_transition',
+        'goal_added',
+        'goal_deleted',
+        'goal_edited',
+        'goal_completed',
+        'goal_uncompleted',
+        'observation_updated',
+        'iras_domain_updated'
+      ];
+    }
+
+    function isValidAuditCreate(data) {
+      return data.keys().hasAll([
+               'participantId',
+               'caseManagerUid',
+               'action',
+               'category',
+               'description',
+               'changedBy',
+               'timestamp'
+             ]) &&
+             data.keys().hasOnly([
+               'participantId',
+               'caseManagerUid',
+               'action',
+               'category',
+               'description',
+               'details',
+               'changedBy',
+               'timestamp'
+             ]) &&
+             data.participantId is string && data.participantId.size() > 0 && data.participantId.size() <= 128 &&
+             data.caseManagerUid == request.auth.uid &&
+             data.action in ['created', 'deleted', 'updated'] &&
+             isValidAuditCategory(data.category) &&
+             data.description is string && data.description.size() > 0 && data.description.size() <= 500 &&
+             data.changedBy is map &&
+             data.changedBy.keys().hasOnly(['uid', 'displayName', 'email']) &&
+             data.changedBy.keys().hasAll(['uid', 'displayName', 'email']) &&
+             data.changedBy.uid == request.auth.uid &&
+             data.changedBy.displayName is string && data.changedBy.displayName.size() <= 100 &&
+             data.changedBy.email is string && data.changedBy.email.size() <= 254 &&
+             (
+               !('details' in data) ||
+               data.details == null ||
+               (
+                 data.details is map &&
+                 data.details.keys().hasOnly(['field', 'oldValue', 'newValue']) &&
+                 (!('field' in data.details) || (data.details.field is string && data.details.field.size() <= 100)) &&
+                 (!('oldValue' in data.details) || (data.details.oldValue is string && data.details.oldValue.size() <= 5000)) &&
+                 (!('newValue' in data.details) || (data.details.newValue is string && data.details.newValue.size() <= 5000))
+               )
+             );
+    }
+
+    // First participant signature only: field must be absent on the existing doc,
+    // and the write may touch only participantSignature.
+    function isFirstParticipantSignature() {
+      return !('participantSignature' in resource.data) &&
+             request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantSignature']) &&
+             isValidSignature(request.resource.data.participantSignature);
+    }
+
     // ===============================================================
     // Rules
     // ===============================================================
@@ -174,14 +261,9 @@ service cloud.firestore {
     match /auditLog/{logId} {
       // Only the owning case manager may read their own audit entries
       allow read: if isAuthenticated() && resource.data.caseManagerUid == request.auth.uid;
-      // Only the authenticated user may create entries attributed to themselves
-      allow create: if isAuthenticated()
-                       && request.resource.data.changedBy.uid == request.auth.uid
-                       && request.resource.data.caseManagerUid == request.auth.uid;
-      // Case managers may edit or delete entries they own
-      allow update, delete: if isAuthenticated()
-                               && (resource.data.caseManagerUid == request.auth.uid
-                                   || resource.data.changedBy.uid == request.auth.uid);
+      // Append-only from clients — edits/deletes require Admin SDK
+      allow create: if isAuthenticated() && isValidAuditCreate(request.resource.data);
+      allow update, delete: if false;
     }
 
     match /users/{userId} {
@@ -206,19 +288,19 @@ service cloud.firestore {
     }
 
     match /participantPortals/{token} {
-      // Anyone with the token URL can read the portal document
-      allow read: if true;
+      // Token secrecy is the access gate: allow document get, deny collection list
+      allow get: if true;
+      allow list: if false;
       // Only the owning case manager can create
       allow create: if isAuthenticated() &&
                        request.resource.data.uid == request.auth.uid &&
                        isValidPortalDocument(request.resource.data);
-      // Case manager can update anything they own; anyone can update only participantSignature
+      // Case manager can update anything they own; anonymous may set participantSignature once
       allow update: if (isAuthenticated() &&
                         resource.data.uid == request.auth.uid &&
                         request.resource.data.uid == resource.data.uid &&
                         isValidPortalDocument(request.resource.data)) ||
-                       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['participantSignature']) &&
-                        isValidSignature(request.resource.data.participantSignature));
+                       isFirstParticipantSignature();
       // Only the owning case manager can revoke (delete)
       allow delete: if isAuthenticated() && resource.data.uid == request.auth.uid;
     }

@@ -86,7 +86,7 @@ export interface Signature {
   name: string;
   signedAt: string; // ISO timestamp
   type: 'drawn' | 'typed';
-  imageData?: string; // base64 PNG for drawn signatures
+  imageData?: string; // data:image/png|jpeg;base64,... for drawn signatures only
 }
 
 export interface Participant {
