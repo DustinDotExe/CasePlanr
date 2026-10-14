@@ -11,64 +11,8 @@ import { Textarea } from './ui/textarea';
 import { Save, Mic, Wand2, Loader2, MicOff } from 'lucide-react';
 import { refineNotesStream } from '../services/geminiService';
 import { alignMilestones, deriveCurrentPhase } from '../lib/milestones';
-
-const IRAS_DOMAINS = [
-  "Criminal History",
-  "Education, Employment, and Financial",
-  "Family and Social Support",
-  "Substance Use",
-  "Peer Associations",
-  "Criminal Attitudes and Behaviors"
-];
-
-
-function buildRefineNotesPrompt(participant: Participant, notes: string, milestonePhases: MilestonePhase[]): string {
-  const phaseLabel = milestonePhases[participant.currentPhase - 1]?.label ?? '';
-  const lines: string[] = [
-    `Participant: ${participant.name}`,
-    `Case Number: ${participant.caseNumber}`,
-    `Current Phase: ${participant.currentPhase} – ${phaseLabel} (this is the phase the participant is actively working on, not a completed milestone)`,
-    '',
-  ];
-
-  if (participant.irasDomains?.length) {
-    lines.push(`Treatment Areas (IRAS): ${participant.irasDomains.join(', ')}`);
-    lines.push('');
-  }
-
-  if (participant.goals?.length) {
-    const today = new Date().toISOString().slice(0, 10);
-    const completedIds = new Set(participant.completedGoals ?? []);
-    lines.push('Active Goals:');
-    participant.goals.forEach(g => {
-      const completed = completedIds.has(g.id);
-      const dateStr = g.dueDate ? ` (Due: ${g.dueDate})` : '';
-      const status = completed ? '[COMPLETED] ' : g.dueDate && g.dueDate < today ? '[OVERDUE] ' : '';
-      lines.push(`- ${status}${g.text}${dateStr}`);
-    });
-    lines.push('');
-  }
-
-  if (participant.completedGoals?.length) {
-    lines.push('Completed Goals:');
-    participant.completedGoals.forEach(id => {
-      const goal = participant.goals?.find(g => g.id === id);
-      lines.push(`- ${goal ? goal.text : id}`);
-    });
-    lines.push('');
-  }
-
-  if (notes.trim()) {
-    lines.push('Case Manager Observations (to be refined):');
-    lines.push(notes.trim());
-    lines.push('');
-    lines.push('Using the case context above, rewrite the Case Manager Observations into clear, professional plain language. Output only the refined observations text.');
-  } else {
-    lines.push('Using the case context above, draft professional case manager observations that summarize the participant\'s current situation, progress toward goals, and any notable concerns. Output only the observations text.');
-  }
-
-  return lines.join('\n');
-}
+import { IRAS_DOMAINS } from '../lib/iras';
+import { buildRefineNotesPrompt } from '../lib/prompts';
 
 export default function CasePlanEditor({ participant, currentUser, milestonePhases }: { participant: Participant; currentUser: CurrentUser; milestonePhases: MilestonePhase[] }) {
   const [notes, setNotes] = useState(participant.notes);
