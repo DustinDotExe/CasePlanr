@@ -24,6 +24,7 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
+import { formatSignedAt } from '../lib/dates';
 
 const IRAS_DOMAIN_ICONS: Record<string, LucideIcon> = {
   'Criminal History': Scale,
@@ -68,17 +69,6 @@ function InlineDateDisplay({ value }: { value?: string | null }) {
     );
   } catch {
     return <span className="text-xl font-black text-accent-600">{value}</span>;
-  }
-}
-
-function formatSignedAt(iso: string) {
-  try {
-    return new Date(iso).toLocaleString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
-      hour: 'numeric', minute: '2-digit', hour12: true,
-    });
-  } catch {
-    return iso;
   }
 }
 

@@ -7,6 +7,7 @@ import {
   Link2, Unlink, Copy, RefreshCw, PenLine, CheckCircle2, Clock,
   ChevronDown, ChevronUp, Loader2, Trash2, X
 } from 'lucide-react';
+import { formatSignedAt } from '../lib/dates';
 
 interface ShareAndSignProps {
   participant: Participant;
@@ -20,17 +21,6 @@ interface ShareAndSignProps {
   onSignAsCaseManager: (sig: Signature) => Promise<void>;
   onRemoveSignature: (signatureField: 'caseManagerSignature' | 'participantSignature') => Promise<void>;
   onClose?: () => void;
-}
-
-function formatSignedAt(iso: string) {
-  try {
-    return new Date(iso).toLocaleString('en-US', {
-      month: 'short', day: 'numeric', year: 'numeric',
-      hour: 'numeric', minute: '2-digit', hour12: true,
-    });
-  } catch {
-    return iso;
-  }
 }
 
 function formatActionError(err: unknown, fallback: string) {

@@ -10,21 +10,7 @@ import { Textarea } from './ui/textarea';
 import { Wand2, Plus, Trash2, CheckCircle, Loader2, Pencil, Check, X, BookOpen, ChevronDown, ChevronUp, Pill, Briefcase, Home, Users, Brain, Scale, Heart, DollarSign, Activity, GripVertical, CalendarDays, CalendarCheck } from 'lucide-react';
 import { DatePicker } from './ui/date-picker';
 import { refineGoalStream } from '../services/geminiService';
-
-function formatGoalDate(iso: string): string {
-  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function isOverdue(iso: string): boolean {
-  return new Date(iso + 'T23:59:59') < new Date();
-}
-
-function isDueSoon(iso: string): boolean {
-  const due = new Date(iso + 'T23:59:59');
-  const now = new Date();
-  return due > now && due <= new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-}
-
+import { formatGoalDate, isDueSoon, isOverdue } from '../lib/dates';
 
 interface GoalTemplate {
   label: string;

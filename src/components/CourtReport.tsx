@@ -10,15 +10,8 @@ import { Label } from './ui/label';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Printer, FileText, Target, LayoutDashboard, CalendarDays, CalendarCheck } from 'lucide-react';
-
-function formatGoalDate(iso: string): string {
-  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function isOverdue(iso: string): boolean {
-  return new Date(iso + 'T23:59:59') < new Date();
-}
 import CasePlanrLogo from './CasePlanrLogo';
+import { formatGoalDate, isOverdue } from '../lib/dates';
 
 function formatSignedDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {
