@@ -10,6 +10,7 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import { Save, Mic, Wand2, Loader2, MicOff } from 'lucide-react';
 import { refineNotesStream } from '../services/geminiService';
+import { alignMilestones, deriveCurrentPhase } from '../lib/milestones';
 
 const IRAS_DOMAINS = [
   "Criminal History",
@@ -89,9 +90,12 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
 
   useEffect(() => {
     setNotes(participant.notes);
-    setMilestones(participant.milestones);
     setIrasDomains(participant.irasDomains || []);
   }, [participant.id]);
+
+  useEffect(() => {
+    setMilestones(alignMilestones(participant.milestones, milestonePhases.length));
+  }, [participant.id, participant.milestones, milestonePhases.length]);
 
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -204,13 +208,10 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
 
   const handleToggleMilestone = async (phaseKey: string, phaseIndex: number) => {
     const completing = !milestones[phaseKey];
-    const newMilestones = { ...milestones, [phaseKey]: completing };
+    const phaseCount = milestonePhases.length;
+    const newMilestones = alignMilestones({ ...milestones, [phaseKey]: completing }, phaseCount);
+    const newPhase = deriveCurrentPhase(newMilestones, phaseCount);
     setMilestones(newMilestones);
-
-    let newPhase = 1;
-    for (let i = milestonePhases.length; i >= 1; i--) {
-      if (newMilestones[`phase${i}`]) { newPhase = i; break; }
-    }
 
     try {
       await updateDoc(doc(db, 'participants', participant.id), {

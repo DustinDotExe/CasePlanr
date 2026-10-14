@@ -32,6 +32,18 @@ import CasePlanrLogo from './components/CasePlanrLogo';
 import { DatePicker } from './components/ui/date-picker';
 import CaseloadDashboard from './components/CaseloadDashboard';
 import { cn } from './lib/utils';
+import {
+  alignMilestones,
+  buildEmptyMilestones,
+  deriveCurrentPhase,
+  milestonesMatchPhaseCount,
+} from './lib/milestones';
+
+function resolveIsDark(preference: 'light' | 'dark' | 'system'): boolean {
+  if (preference === 'dark') return true;
+  if (preference === 'light') return false;
+  return window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
 
 function createShareToken() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -123,20 +135,37 @@ export default function App() {
   const [milestonePhases, setMilestonePhases] = useState<MilestonePhase[]>(DEFAULT_MILESTONE_PHASES);
   const [themePreference, setThemePreference] = useState<'light' | 'dark' | 'system'>(() => {
     const stored = localStorage.getItem('themePreference') as 'light' | 'dark' | 'system' | null;
-    return stored || 'system';
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
+    // Migrate legacy theme-only preference
+    const legacy = localStorage.getItem('theme');
+    if (legacy === 'dark' || legacy === 'light') return legacy;
+    return 'system';
   });
   const [paletteColor, setPaletteColor] = useState<'orange' | 'blue' | 'red' | 'green' | 'purple'>(() => {
     const stored = localStorage.getItem('paletteColor') as 'orange' | 'blue' | 'red' | 'green' | 'purple' | null;
     return stored || 'blue';
   });
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return document.documentElement.classList.contains('dark') ||
-             localStorage.getItem('theme') === 'dark' ||
-             (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const [isDark, setIsDark] = useState(() => resolveIsDark(
+    (() => {
+      const stored = localStorage.getItem('themePreference') as 'light' | 'dark' | 'system' | null;
+      if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
+      const legacy = localStorage.getItem('theme');
+      if (legacy === 'dark' || legacy === 'light') return legacy;
+      return 'system';
+    })()
+  ));
+
+  useEffect(() => {
+    if (themePreference !== 'system') {
+      setIsDark(themePreference === 'dark');
+      return;
     }
-    return false;
-  });
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = () => setIsDark(mq.matches);
+    onChange();
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, [themePreference]);
 
   useEffect(() => {
     const headerColorLight = '#ffffff';
@@ -264,6 +293,22 @@ export default function App() {
     return () => unsubscribe();
   }, [selectedParticipantId, participants]);
 
+  // Keep participant milestone maps aligned when settings phase count changes
+  // or when legacy records still have a fixed 5-phase shape.
+  useEffect(() => {
+    if (!user || participants.length === 0) return;
+    const phaseCount = milestonePhases.length;
+    const needsSync = participants.some((participant) => {
+      const aligned = alignMilestones(participant.milestones, phaseCount);
+      return (
+        !milestonesMatchPhaseCount(participant.milestones, phaseCount) ||
+        participant.currentPhase !== deriveCurrentPhase(aligned, phaseCount)
+      );
+    });
+    if (!needsSync) return;
+    void syncParticipantPhases(milestonePhases, participants);
+  }, [user?.uid, milestonePhases, participants]);
+
   const selectedParticipant = participants.find(p => p.id === selectedParticipantId) || null;
   const currentUser: CurrentUser = user
     ? { uid: user.uid, displayName: user.displayName, email: user.email }
@@ -362,7 +407,7 @@ export default function App() {
         currentPhase: 1,
         goals: [],
         notes: '',
-        milestones: Object.fromEntries(milestonePhases.map((_, i) => [`phase${i + 1}`, false])),
+        milestones: buildEmptyMilestones(milestonePhases.length),
         irasDomains: [],
         uid: user.uid,
         createdAt: serverTimestamp(),
@@ -561,11 +606,31 @@ export default function App() {
   const handleThemeChange = (pref: 'light' | 'dark' | 'system') => {
     setThemePreference(pref);
     localStorage.setItem('themePreference', pref);
-    if (pref === 'system') {
-      setIsDark(window.matchMedia('(prefers-color-scheme: dark)').matches);
-    } else {
-      setIsDark(pref === 'dark');
-    }
+    setIsDark(resolveIsDark(pref));
+  };
+
+  const syncParticipantPhases = async (phases: MilestonePhase[], list: Participant[]) => {
+    const phaseCount = phases.length;
+    await Promise.all(list.map(async (participant) => {
+      const aligned = alignMilestones(participant.milestones, phaseCount);
+      const currentPhase = deriveCurrentPhase(aligned, phaseCount);
+      const shapeOk = milestonesMatchPhaseCount(participant.milestones, phaseCount);
+      if (shapeOk && participant.currentPhase === currentPhase) return;
+      try {
+        await updateDoc(doc(db, 'participants', participant.id), {
+          milestones: aligned,
+          currentPhase,
+          updatedAt: serverTimestamp(),
+        });
+      } catch (err) {
+        console.error(`Failed to align milestones for ${participant.id}:`, err);
+      }
+    }));
+  };
+
+  const handleMilestonePhasesChange = (phases: MilestonePhase[]) => {
+    setMilestonePhases(phases);
+    void syncParticipantPhases(phases, participants);
   };
 
   const startEditingParticipant = () => {
@@ -1050,7 +1115,8 @@ export default function App() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setIsDark(!isDark)}
+            onClick={() => handleThemeChange(isDark ? 'light' : 'dark')}
+            aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             className="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
           >
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -1115,7 +1181,7 @@ export default function App() {
               goalTemplates={goalTemplates}
               onGoalTemplatesChange={setGoalTemplates}
               milestonePhases={milestonePhases}
-              onMilestonePhasesChange={setMilestonePhases}
+              onMilestonePhasesChange={handleMilestonePhasesChange}
             />
           ) : selectedParticipant ? (
             <div className="max-w-5xl mx-auto p-4 md:p-10 space-y-6 md:space-y-10 animate-in fade-in duration-500" data-participant-content>
@@ -1303,7 +1369,7 @@ export default function App() {
                 </TabsContent>
 
                 <TabsContent value="history" className="mt-6 outline-none">
-                  <AuditLog participant={selectedParticipant} />
+                  <AuditLog participant={selectedParticipant} milestonePhases={milestonePhases} />
                 </TabsContent>
               </Tabs>
             </div>
