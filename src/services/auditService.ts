@@ -27,7 +27,7 @@ export async function logAuditEvent(params: AuditEventParams): Promise<void> {
       caseManagerUid: params.caseManagerUid,
       action,
       category: params.category,
-      description: params.description,
+      description: params.description.slice(0, 500),
       details: params.details ?? null,
       changedBy: {
         uid: params.currentUser.uid,

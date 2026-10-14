@@ -240,8 +240,8 @@ service cloud.firestore {
                  data.details is map &&
                  data.details.keys().hasOnly(['field', 'oldValue', 'newValue']) &&
                  (!('field' in data.details) || (data.details.field is string && data.details.field.size() <= 100)) &&
-                 (!('oldValue' in data.details) || (data.details.oldValue is string && data.details.oldValue.size() <= 5000)) &&
-                 (!('newValue' in data.details) || (data.details.newValue is string && data.details.newValue.size() <= 5000))
+                 (!('oldValue' in data.details) || (data.details.oldValue is string && data.details.oldValue.size() <= 10000)) &&
+                 (!('newValue' in data.details) || (data.details.newValue is string && data.details.newValue.size() <= 10000))
                )
              );
     }
