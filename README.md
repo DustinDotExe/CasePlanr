@@ -44,7 +44,9 @@ Firestore currently uses three main collections:
 - `participants`: participant profile, case number, phase state, milestones, goals, completed goals, notes, and IRAS domains.
 - `auditLog`: per-participant activity entries for profile updates, phase changes, goals, observations, and target-domain changes.
 
-Firestore rules restrict participant and audit data to the owning authenticated case manager. User roles are initialized as `case_manager`; admin role changes are intended to happen outside the client through backend/Admin SDK workflows.
+Firestore rules restrict participant and audit data to the owning authenticated case manager. The audit log is append-only from clients. Participant portals are readable by document ID (share token) only — collection listing is denied — and a participant may set their signature once. User roles are initialized as `case_manager`; admin role changes are intended to happen outside the client through backend/Admin SDK workflows.
+
+Firestore also uses a `participantPortals` collection for public share links (token document IDs).
 
 ## Environment
 

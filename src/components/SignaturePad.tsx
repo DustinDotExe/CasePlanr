@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { Signature } from '../types';
+import { assertValidSignature } from '../lib/signature';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { PenLine, Type, Trash2 } from 'lucide-react';
@@ -14,6 +15,7 @@ export default function SignaturePad({ onSign, disabled, defaultName = '' }: Sig
   const [mode, setMode] = useState<'drawn' | 'typed'>('typed');
   const [typedName, setTypedName] = useState(defaultName);
   const [hasDrawn, setHasDrawn] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawingRef = useRef(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
@@ -149,18 +151,37 @@ export default function SignaturePad({ onSign, disabled, defaultName = '' }: Sig
 
   const handleSign = () => {
     if (disabled) return;
-    if (mode === 'drawn') {
-      if (!hasDrawn) return;
-      const imageData = canvasRef.current?.toDataURL('image/png');
-      onSign({ name: typedName || 'Participant', signedAt: new Date().toISOString(), type: 'drawn', imageData });
-    } else {
-      if (!typedName.trim()) return;
-      onSign({ name: typedName.trim(), signedAt: new Date().toISOString(), type: 'typed' });
+    setLocalError(null);
+    try {
+      if (mode === 'drawn') {
+        if (!hasDrawn) return;
+        const imageData = canvasRef.current?.toDataURL('image/png');
+        onSign(assertValidSignature({
+          name: typedName || 'Participant',
+          signedAt: new Date().toISOString(),
+          type: 'drawn',
+          imageData,
+        }));
+      } else {
+        if (!typedName.trim()) return;
+        onSign(assertValidSignature({
+          name: typedName.trim(),
+          signedAt: new Date().toISOString(),
+          type: 'typed',
+        }));
+      }
+    } catch (err) {
+      setLocalError(err instanceof Error ? err.message : 'Invalid signature.');
     }
   };
 
   return (
     <div className="space-y-3">
+      {localError && (
+        <div className="rounded-lg border border-red-100 bg-red-50 dark:border-red-900 dark:bg-red-950/30 px-3 py-2 text-xs font-semibold text-red-600 dark:text-red-400">
+          {localError}
+        </div>
+      )}
       <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 w-fit">
         <button
           onClick={() => setMode('typed')}

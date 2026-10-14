@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { collection, addDoc, deleteDoc, getDocs, updateDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { AuditLogEntry, AuditCategory, CurrentUser } from '../types';
 
 export interface AuditEventParams {
@@ -27,7 +27,7 @@ export async function logAuditEvent(params: AuditEventParams): Promise<void> {
       caseManagerUid: params.caseManagerUid,
       action,
       category: params.category,
-      description: params.description,
+      description: params.description.slice(0, 500),
       details: params.details ?? null,
       changedBy: {
         uid: params.currentUser.uid,
@@ -40,41 +40,6 @@ export async function logAuditEvent(params: AuditEventParams): Promise<void> {
     // Audit failures must not break the calling operation
     console.error('Audit log write failed:', err);
   }
-}
-
-export async function deleteAuditEntry(entryId: string): Promise<void> {
-  await deleteDoc(doc(db, 'auditLog', entryId));
-}
-
-export async function retractAuditEntry(
-  participantId: string,
-  caseManagerUid: string,
-  predicate: (entry: AuditLogEntry) => boolean
-): Promise<void> {
-  try {
-    const q = query(
-      collection(db, 'auditLog'),
-      where('caseManagerUid', '==', caseManagerUid),
-      where('participantId', '==', participantId),
-      orderBy('timestamp', 'desc')
-    );
-    const snap = await getDocs(q);
-    const match = snap.docs.find(d => predicate({ id: d.id, ...d.data() } as AuditLogEntry));
-    if (match) await deleteDoc(doc(db, 'auditLog', match.id));
-  } catch (err) {
-    console.error('Audit retract failed:', err);
-  }
-}
-
-export async function updateAuditEntry(
-  entryId: string,
-  description: string,
-  details?: { field?: string; oldValue?: string; newValue?: string } | null,
-  date?: Date
-): Promise<void> {
-  const payload: Record<string, unknown> = { description, details: details ?? null };
-  if (date) payload.timestamp = Timestamp.fromDate(date);
-  await updateDoc(doc(db, 'auditLog', entryId), payload);
 }
 
 export function subscribeToAuditLog(

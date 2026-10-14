@@ -182,9 +182,14 @@ export default function ParticipantPortal() {
       await updateDoc(doc(db, 'participantPortals', token), {
         participantSignature: sig,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Sign error:', err);
-      setSignError('Failed to submit signature. Please try again.');
+      const code = err?.code as string | undefined;
+      if (code === 'permission-denied') {
+        setSignError('This plan has already been signed, or the link no longer allows signing. Contact your case manager if you need to re-sign.');
+      } else {
+        setSignError('Failed to submit signature. Please try again.');
+      }
     } finally {
       setSigning(false);
     }

@@ -2,7 +2,7 @@ import { useRef, useEffect, type ReactNode } from 'react';
 import { db } from '../firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Participant, CurrentUser, ParticipantPortal, Signature } from '../types';
-import { logAuditEvent, retractAuditEntry } from '../services/auditService';
+import { logAuditEvent } from '../services/auditService';
 import { Card, CardContent, CardHeader } from './ui/card';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
@@ -175,22 +175,14 @@ export default function CourtReport({
                         completedGoals: newCompleted,
                         updatedAt: serverTimestamp()
                       });
-                      if (nowCompleting) {
-                        logAuditEvent({
-                          participantId: participant.id,
-                          caseManagerUid: participant.uid,
-                          category: 'goal_completed',
-                          description: 'Goal Completed',
-                          details: { field: 'goal', newValue: goal.text },
-                          currentUser
-                        });
-                      } else {
-                        retractAuditEntry(
-                          participant.id,
-                          participant.uid,
-                          e => e.category === 'goal_completed' && e.details?.newValue === goal.text
-                        );
-                      }
+                      logAuditEvent({
+                        participantId: participant.id,
+                        caseManagerUid: participant.uid,
+                        category: nowCompleting ? 'goal_completed' : 'goal_uncompleted',
+                        description: nowCompleting ? 'Goal Completed' : 'Goal Uncompleted',
+                        details: { field: 'goal', newValue: goal.text },
+                        currentUser
+                      });
                     } catch (err) {
                       console.error("Update Goal Completion Error:", err);
                     }
