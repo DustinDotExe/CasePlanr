@@ -8,7 +8,7 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Moon, Monitor, Sun, LogOut, Check, ChevronLeft, Plus, Pencil, Trash2, X, RotateCcw, ChevronDown } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { StoredTemplateCategory, MilestonePhase, DEFAULT_MILESTONE_PHASES } from '../types';
+import { StoredTemplateCategory, MilestonePhase, DEFAULT_MILESTONE_PHASES, MAX_MILESTONE_PHASES } from '../types';
 import { DEFAULT_STORED_TEMPLATES } from './AIGoalRefiner';
 
 interface UserSettingsProps {
@@ -487,7 +487,7 @@ export default function UserSettings({
                 </Button>
               </div>
             ))}
-            {localPhases.length < 10 && (
+            {localPhases.length < MAX_MILESTONE_PHASES && (
               <button
                 onClick={() => persistPhases([...localPhases, { label: '' }])}
                 className="w-full flex items-center gap-2 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"

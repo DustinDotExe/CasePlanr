@@ -16,8 +16,8 @@ service cloud.firestore {
     // Collection: participants/{participantId}
     //   name: string (required, max 100)
     //   caseNumber: string (required, max 50)
-    //   currentPhase: int 1-5 (required)
-    //   milestones: map { phase1-5: bool } (required)
+    //   currentPhase: int 1-N (required, N = milestones.size(), max 10)
+    //   milestones: map { phase1..phaseN: bool } (required, N 1-10)
     //   goals: list (optional, max 50 entries)
     //   completedGoals: list (optional, max 50 entries)
     //   notes: string (optional, max 10000 chars)
@@ -25,6 +25,8 @@ service cloud.firestore {
     //   uid: string (required, owner — immutable after creation)
     //   createdAt: timestamp (required)
     //   updatedAt: timestamp (required)
+    //
+    // users may also store milestonePhases: list<{label: string}> (1-10 entries)
     //
     // Collection: auditLog/{logId}
     //   Append-only from clients. Updates/deletes require Admin SDK.
@@ -71,11 +73,45 @@ service cloud.firestore {
              (!('title' in data) || (data.title is string && data.title.size() <= 100));
     }
 
+    // Contiguous phase1..phaseN bool map (N = m.size(), 1-10).
     function isValidMilestones(m) {
       return m is map &&
-             m.keys().hasAll(['phase1', 'phase2', 'phase3', 'phase4', 'phase5']) &&
-             m.phase1 is bool && m.phase2 is bool && m.phase3 is bool &&
-             m.phase4 is bool && m.phase5 is bool;
+             m.size() >= 1 &&
+             m.size() <= 10 &&
+             (
+               (m.size() == 1 && m.keys().hasOnly(['phase1']) && m.phase1 is bool) ||
+               (m.size() == 2 && m.keys().hasOnly(['phase1', 'phase2']) &&
+                 m.phase1 is bool && m.phase2 is bool) ||
+               (m.size() == 3 && m.keys().hasOnly(['phase1', 'phase2', 'phase3']) &&
+                 m.phase1 is bool && m.phase2 is bool && m.phase3 is bool) ||
+               (m.size() == 4 && m.keys().hasOnly(['phase1', 'phase2', 'phase3', 'phase4']) &&
+                 m.phase1 is bool && m.phase2 is bool && m.phase3 is bool && m.phase4 is bool) ||
+               (m.size() == 5 && m.keys().hasOnly(['phase1', 'phase2', 'phase3', 'phase4', 'phase5']) &&
+                 m.phase1 is bool && m.phase2 is bool && m.phase3 is bool &&
+                 m.phase4 is bool && m.phase5 is bool) ||
+               (m.size() == 6 && m.keys().hasOnly(['phase1', 'phase2', 'phase3', 'phase4', 'phase5', 'phase6']) &&
+                 m.phase1 is bool && m.phase2 is bool && m.phase3 is bool &&
+                 m.phase4 is bool && m.phase5 is bool && m.phase6 is bool) ||
+               (m.size() == 7 && m.keys().hasOnly(['phase1', 'phase2', 'phase3', 'phase4', 'phase5', 'phase6', 'phase7']) &&
+                 m.phase1 is bool && m.phase2 is bool && m.phase3 is bool &&
+                 m.phase4 is bool && m.phase5 is bool && m.phase6 is bool && m.phase7 is bool) ||
+               (m.size() == 8 && m.keys().hasOnly(['phase1', 'phase2', 'phase3', 'phase4', 'phase5', 'phase6', 'phase7', 'phase8']) &&
+                 m.phase1 is bool && m.phase2 is bool && m.phase3 is bool &&
+                 m.phase4 is bool && m.phase5 is bool && m.phase6 is bool &&
+                 m.phase7 is bool && m.phase8 is bool) ||
+               (m.size() == 9 && m.keys().hasOnly(['phase1', 'phase2', 'phase3', 'phase4', 'phase5', 'phase6', 'phase7', 'phase8', 'phase9']) &&
+                 m.phase1 is bool && m.phase2 is bool && m.phase3 is bool &&
+                 m.phase4 is bool && m.phase5 is bool && m.phase6 is bool &&
+                 m.phase7 is bool && m.phase8 is bool && m.phase9 is bool) ||
+               (m.size() == 10 && m.keys().hasOnly(['phase1', 'phase2', 'phase3', 'phase4', 'phase5', 'phase6', 'phase7', 'phase8', 'phase9', 'phase10']) &&
+                 m.phase1 is bool && m.phase2 is bool && m.phase3 is bool &&
+                 m.phase4 is bool && m.phase5 is bool && m.phase6 is bool &&
+                 m.phase7 is bool && m.phase8 is bool && m.phase9 is bool && m.phase10 is bool)
+             );
+    }
+
+    function isValidCurrentPhase(phase, milestones) {
+      return phase is int && phase >= 1 && phase <= milestones.size();
     }
 
     function isValidParticipantCreate(data) {
@@ -83,8 +119,8 @@ service cloud.firestore {
              data.uid == request.auth.uid &&
              data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
              data.caseNumber is string && data.caseNumber.size() > 0 && data.caseNumber.size() <= 50 &&
-             data.currentPhase is int && data.currentPhase >= 1 && data.currentPhase <= 5 &&
              isValidMilestones(data.milestones) &&
+             isValidCurrentPhase(data.currentPhase, data.milestones) &&
              (!('goals' in data) || (data.goals is list && data.goals.size() <= 50)) &&
              (!('completedGoals' in data) || (data.completedGoals is list && data.completedGoals.size() <= 50)) &&
              (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
@@ -99,8 +135,8 @@ service cloud.firestore {
              data.uid == request.auth.uid &&
              data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
              data.caseNumber is string && data.caseNumber.size() > 0 && data.caseNumber.size() <= 50 &&
-             data.currentPhase is int && data.currentPhase >= 1 && data.currentPhase <= 5 &&
              isValidMilestones(data.milestones) &&
+             isValidCurrentPhase(data.currentPhase, data.milestones) &&
              (!('goals' in data) || (data.goals is list && data.goals.size() <= 50)) &&
              (!('completedGoals' in data) || (data.completedGoals is list && data.completedGoals.size() <= 50)) &&
              (!('notes' in data) || (data.notes is string && data.notes.size() <= 10000)) &&
@@ -174,14 +210,15 @@ service cloud.firestore {
              data.caseManagerTitle is string && data.caseManagerTitle.size() <= 100 &&
              data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
              data.caseNumber is string && data.caseNumber.size() > 0 && data.caseNumber.size() <= 50 &&
-             data.currentPhase is int && data.currentPhase >= 1 && data.currentPhase <= 10 &&
+             isValidMilestones(data.milestones) &&
+             isValidCurrentPhase(data.currentPhase, data.milestones) &&
              data.goals is list && data.goals.size() <= 50 &&
              data.completedGoals is list && data.completedGoals.size() <= 50 &&
              data.notes is string && data.notes.size() <= 10000 &&
-             data.milestones is map &&
              data.irasDomains is list && data.irasDomains.size() <= 20 &&
              (data.phaseUpdate == null || data.phaseUpdate is string) &&
-             data.milestonePhaseLabels is list && data.milestonePhaseLabels.size() <= 10 &&
+             data.milestonePhaseLabels is list &&
+             data.milestonePhaseLabels.size() == data.milestones.size() &&
              (!('caseManagerSignature' in data) || isValidSignature(data.caseManagerSignature)) &&
              (!('participantSignature' in data) || isValidSignature(data.participantSignature));
     }

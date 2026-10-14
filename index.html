@@ -12,8 +12,16 @@
     <script>
       (() => {
         const palette = localStorage.getItem('paletteColor');
-        const allowed = ['orange', 'blue', 'red', 'green'];
+        const allowed = ['orange', 'blue', 'red', 'green', 'purple'];
         document.documentElement.dataset.palette = allowed.includes(palette) ? palette : 'blue';
+
+        const preference = localStorage.getItem('themePreference');
+        const storedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDark =
+          preference === 'dark' ||
+          (preference === 'light' ? false : preference === 'system' ? prefersDark : storedTheme === 'dark' || (!storedTheme && prefersDark));
+        document.documentElement.classList.toggle('dark', isDark);
       })();
     </script>
   </head>

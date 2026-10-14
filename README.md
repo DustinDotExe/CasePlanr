@@ -9,7 +9,7 @@ The app is currently geared toward testing with Johnson County Problem Solving C
 - Google sign-in through Firebase Authentication.
 - Per-user participant records stored in Firestore.
 - Participant search, creation, profile editing, and deletion.
-- Five-phase milestone tracking:
+- Configurable milestone phases (1–10), with defaults:
   - Orientation & Stabilization
   - Active Treatment
   - Relapse Prevention

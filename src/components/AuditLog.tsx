@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { auth, db } from '../firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { Participant, AuditLogEntry, AuditCategory } from '../types';
+import { Participant, AuditLogEntry, AuditCategory, MilestonePhase } from '../types';
 import { subscribeToAuditLog } from '../services/auditService';
 import { hearingBriefStream } from '../services/geminiService';
 import { Card, CardContent, CardHeader } from './ui/card';
@@ -15,13 +15,16 @@ import {
 } from 'lucide-react';
 import CasePlanrLogo from './CasePlanrLogo';
 
-const PHASE_NAMES = ['', 'Orientation', 'Active Treatment', 'Relapse Prevention', 'Community Reintegration', 'Commencement Preparation'];
-
-function buildHearingBriefPrompt(participant: Participant, entries: AuditLogEntry[]): string {
+function buildHearingBriefPrompt(
+  participant: Participant,
+  entries: AuditLogEntry[],
+  milestonePhases: MilestonePhase[]
+): string {
+  const phaseLabel = milestonePhases[participant.currentPhase - 1]?.label ?? '';
   const lines: string[] = [
     `Participant: ${participant.name}`,
     `Case Number: ${participant.caseNumber}`,
-    `Current Phase: ${participant.currentPhase} – ${PHASE_NAMES[participant.currentPhase] ?? ''} (this is the phase the participant is actively working on, not a completed milestone)`,
+    `Current Phase: ${participant.currentPhase} – ${phaseLabel} (this is the phase the participant is actively working on, not a completed milestone)`,
     '',
   ];
 
@@ -140,7 +143,13 @@ function formatFullTimestamp(timestamp: any): string {
   return date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
 }
 
-export default function AuditLog({ participant }: { participant: Participant }) {
+export default function AuditLog({
+  participant,
+  milestonePhases,
+}: {
+  participant: Participant;
+  milestonePhases: MilestonePhase[];
+}) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [entries, setEntries] = useState<AuditLogEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -180,7 +189,7 @@ export default function AuditLog({ participant }: { participant: Participant }) 
     setBriefEditing(false);
     setSentToObs(false);
     try {
-      for await (const chunk of hearingBriefStream(buildHearingBriefPrompt(participant, entries))) {
+      for await (const chunk of hearingBriefStream(buildHearingBriefPrompt(participant, entries, milestonePhases))) {
         setBriefText(prev => prev + chunk);
       }
     } catch (err: any) {
@@ -267,7 +276,12 @@ export default function AuditLog({ participant }: { participant: Participant }) 
           </div>
           <div className="text-center py-1.5 sm:py-0">
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Current Phase</p>
-            <p className="text-base font-bold text-slate-800 dark:text-slate-200">{participant.currentPhase}</p>
+            <p className="text-base font-bold text-slate-800 dark:text-slate-200">
+              {participant.currentPhase}
+              {milestonePhases[participant.currentPhase - 1]?.label
+                ? ` – ${milestonePhases[participant.currentPhase - 1].label}`
+                : ''}
+            </p>
           </div>
           <div className="text-center py-1.5 pb-0 sm:py-0">
             <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Case Number</p>

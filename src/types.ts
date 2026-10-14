@@ -72,6 +72,9 @@ export interface MilestonePhase {
   label: string;
 }
 
+/** Keep in sync with firestore.rules and src/lib/milestones.ts */
+export const MAX_MILESTONE_PHASES = 10;
+
 export const DEFAULT_MILESTONE_PHASES: MilestonePhase[] = [
   { label: 'Orientation & Stabilization' },
   { label: 'Active Treatment' },
