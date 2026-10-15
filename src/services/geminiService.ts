@@ -1,4 +1,5 @@
 import { auth } from '../firebase';
+import { parseSseDataLine } from '../lib/sse';
 
 async function* streamSSE(url: string, prompt: string): AsyncGenerator<string> {
   const controller = new AbortController();
@@ -33,18 +34,10 @@ async function* streamSSE(url: string, prompt: string): AsyncGenerator<string> {
       buffer = lines.pop()!;
       for (const line of lines) {
         if (!line.startsWith('data: ')) continue;
-        const data = line.slice(6).trim();
-        if (data === '[DONE]') return;
-        let parsed: unknown;
-        try {
-          parsed = JSON.parse(data);
-        } catch {
-          continue;
-        }
-        if (typeof parsed === 'string') yield parsed;
-        if (parsed && typeof parsed === 'object' && 'error' in parsed) {
-          throw new Error(String(parsed.error));
-        }
+        const result = parseSseDataLine(line.slice(6));
+        if (result.kind === 'done') return;
+        if (result.kind === 'chunk') yield result.text;
+        if (result.kind === 'error') throw new Error(result.message);
       }
     }
   } finally {

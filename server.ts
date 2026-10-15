@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
@@ -9,6 +10,11 @@ import { streamGemini } from './shared/geminiStream';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+// CSP disabled: index.html uses an inline theme bootstrap script.
+app.use(helmet({
+  contentSecurityPolicy: false,
+  referrerPolicy: { policy: 'no-referrer' },
+}));
 app.use(express.json());
 
 const apiKey = process.env.GEMINI_API_KEY;

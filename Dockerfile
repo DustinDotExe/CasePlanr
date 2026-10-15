@@ -1,4 +1,5 @@
-FROM node:22-slim
+# Build stage
+FROM node:22-slim AS builder
 
 WORKDIR /app
 
@@ -25,7 +26,21 @@ ENV VITE_FIREBASE_MESSAGING_SENDER_ID=$VITE_FIREBASE_MESSAGING_SENDER_ID
 
 RUN npm run build
 
+# Runtime stage
+FROM node:22-slim AS runtime
+
+WORKDIR /app
+
 ENV NODE_ENV=production
+
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+COPY server.ts ./
+COPY shared ./shared
+
+USER node
 
 EXPOSE 8080
 

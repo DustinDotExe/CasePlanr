@@ -13,6 +13,7 @@ import { refineNotesStream } from '../services/geminiService';
 import { alignMilestones, deriveCurrentPhase } from '../lib/milestones';
 import { IRAS_DOMAINS } from '../lib/iras';
 import { buildRefineNotesPrompt } from '../lib/prompts';
+import { notify } from '../lib/notify';
 
 export default function CasePlanEditor({ participant, currentUser, milestonePhases }: { participant: Participant; currentUser: CurrentUser; milestonePhases: MilestonePhase[] }) {
   const [notes, setNotes] = useState(participant.notes);
@@ -79,7 +80,7 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
       console.error('Speech recognition error:', event.error);
       setIsListening(false);
       if (event.error === 'not-allowed') {
-        alert('Microphone access was denied. Please check your browser permissions.');
+        notify.error('Microphone access was denied. Please check your browser permissions.');
       }
     };
 
@@ -92,7 +93,7 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
 
   const toggleListening = () => {
     if (!sttSupported) {
-      alert('Speech recognition is not supported in this browser. Please try Chrome or Edge.');
+      notify.error('Speech recognition is not supported in this browser. Please try Chrome or Edge.');
       return;
     }
 
@@ -119,7 +120,7 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
       }
     } catch (err) {
       console.error("AI Refinement Error:", err);
-      alert("AI refinement failed. Please try again.");
+      notify.error('AI refinement failed. Please try again.');
     } finally {
       setIsRefining(false);
     }
