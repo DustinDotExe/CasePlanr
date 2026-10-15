@@ -23,7 +23,10 @@ interface UserSettingsProps {
   goalTemplates: StoredTemplateCategory[];
   onGoalTemplatesChange: (templates: StoredTemplateCategory[]) => void;
   milestonePhases: MilestonePhase[];
-  onMilestonePhasesChange: (phases: MilestonePhase[]) => void;
+  onMilestonePhasesChange: (
+    phases: MilestonePhase[],
+    meta?: { removedPhaseIndex?: number }
+  ) => void;
 }
 
 const PALETTES: { value: 'orange' | 'blue' | 'red' | 'green' | 'purple'; label: string; swatch: string }[] = [
@@ -106,9 +109,12 @@ export default function UserSettings({
     }
   };
 
-  const persistPhases = async (updated: MilestonePhase[]) => {
+  const persistPhases = async (
+    updated: MilestonePhase[],
+    meta?: { removedPhaseIndex?: number }
+  ) => {
     setLocalPhases(updated);
-    onMilestonePhasesChange(updated);
+    onMilestonePhasesChange(updated, meta);
     try {
       await updateDoc(doc(db, 'users', user.uid), { milestonePhases: updated, updatedAt: serverTimestamp() });
     } catch (err) {
@@ -479,7 +485,10 @@ export default function UserSettings({
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => persistPhases(localPhases.filter((_, pi) => pi !== i))}
+                  onClick={() => persistPhases(
+                    localPhases.filter((_, pi) => pi !== i),
+                    { removedPhaseIndex: i + 1 }
+                  )}
                   disabled={localPhases.length <= 1}
                   className="h-7 w-7 shrink-0 text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30"
                 >

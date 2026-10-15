@@ -1,7 +1,12 @@
-import { MAX_MILESTONE_PHASES, Milestones } from '../types';
+import { MAX_MILESTONE_PHASES, MilestonePhase, Milestones } from '../types';
 
 export { MAX_MILESTONE_PHASES };
 export const MIN_MILESTONE_PHASES = 1;
+
+export type AlignMilestonesOptions = {
+  /** 1-based phase number that was removed; later values shift left with their labels. */
+  removedPhaseIndex?: number;
+};
 
 export function buildEmptyMilestones(phaseCount: number): Milestones {
   const n = clampPhaseCount(phaseCount);
@@ -10,14 +15,49 @@ export function buildEmptyMilestones(phaseCount: number): Milestones {
   );
 }
 
-export function alignMilestones(existing: Milestones | undefined, phaseCount: number): Milestones {
+export function alignMilestones(
+  existing: Milestones | undefined,
+  phaseCount: number,
+  options?: AlignMilestonesOptions
+): Milestones {
   const n = clampPhaseCount(phaseCount);
   const source = existing ?? {};
+  const removed = options?.removedPhaseIndex;
+
+  if (removed != null && Number.isFinite(removed)) {
+    const removedIndex = Math.floor(removed);
+    if (removedIndex >= 1) {
+      const aligned: Milestones = {};
+      for (let newI = 1; newI <= n; newI++) {
+        const oldI = newI < removedIndex ? newI : newI + 1;
+        aligned[`phase${newI}`] = Boolean(source[`phase${oldI}`]);
+      }
+      return aligned;
+    }
+  }
+
   const aligned: Milestones = {};
   for (let i = 1; i <= n; i++) {
     aligned[`phase${i}`] = Boolean(source[`phase${i}`]);
   }
   return aligned;
+}
+
+/**
+ * When exactly one phase was removed, return its 1-based index by comparing
+ * label sequences. Returns undefined when the change is not a single removal.
+ */
+export function detectRemovedPhaseIndex(
+  prev: Pick<MilestonePhase, 'label'>[],
+  next: Pick<MilestonePhase, 'label'>[]
+): number | undefined {
+  if (prev.length !== next.length + 1) return undefined;
+  for (let i = 0; i < next.length; i++) {
+    if (prev[i]?.label !== next[i]?.label) {
+      return i + 1;
+    }
+  }
+  return prev.length;
 }
 
 /** Highest completed phase index (1-based), or 1 when none are checked. */
@@ -31,6 +71,10 @@ export function deriveCurrentPhase(milestones: Milestones, phaseCount: number): 
     }
   }
   return phase;
+}
+
+export function milestoneKeyCount(milestones: Milestones | undefined): number {
+  return Object.keys(milestones ?? {}).filter((key) => /^phase([1-9]|10)$/.test(key)).length;
 }
 
 export function milestonesMatchPhaseCount(milestones: Milestones | undefined, phaseCount: number): boolean {
