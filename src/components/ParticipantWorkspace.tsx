@@ -195,7 +195,7 @@ export default function ParticipantWorkspace({
             <Target className="w-4 h-4" />
             <span className="hidden md:inline">Goals</span>
           </TabsTrigger>
-          <TabsTrigger value="report" aria-label="Report" className="dark:data-active:bg-slate-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
+          <TabsTrigger value="report" aria-label="Case Plan" className="dark:data-active:bg-slate-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
             <FileText className="w-4 h-4" />
             <span className="hidden md:inline">Case Plan</span>
           </TabsTrigger>
