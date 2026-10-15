@@ -28,8 +28,11 @@ import { cn } from './lib/utils';
 import { buildPortalPayload, createShareToken, wrapSecureLinkError } from './lib/portal';
 import {
   alignMilestones,
+  AlignMilestonesOptions,
   buildEmptyMilestones,
   deriveCurrentPhase,
+  detectRemovedPhaseIndex,
+  milestoneKeyCount,
   milestonesMatchPhaseCount,
 } from './lib/milestones';
 
@@ -70,6 +73,8 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [goalTemplates, setGoalTemplates] = useState<StoredTemplateCategory[]>(DEFAULT_STORED_TEMPLATES);
   const [milestonePhases, setMilestonePhases] = useState<MilestonePhase[]>(DEFAULT_MILESTONE_PHASES);
+  /** False until the current user's settings doc snapshot has been observed. */
+  const [settingsReady, setSettingsReady] = useState(false);
   const [themePreference, setThemePreference] = useState<'light' | 'dark' | 'system'>(() => {
     const stored = localStorage.getItem('themePreference') as 'light' | 'dark' | 'system' | null;
     if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
@@ -140,6 +145,8 @@ export default function App() {
     setShareAndSignOpen(false);
     setSettingsOpen(false);
     setSidebarOpen(false);
+    setSettingsReady(false);
+    setMilestonePhases(DEFAULT_MILESTONE_PHASES);
   }, [user?.uid]);
 
   const handleCloseSettings = () => {
@@ -178,8 +185,13 @@ export default function App() {
           const data = docSnap.data();
           setUserTitle(data.title || 'Court Case Manager');
           if (data.goalTemplates?.length) setGoalTemplates(data.goalTemplates);
-          if (data.milestonePhases?.length) setMilestonePhases(data.milestonePhases);
+          if (data.milestonePhases?.length) {
+            setMilestonePhases(data.milestonePhases);
+          } else {
+            setMilestonePhases(DEFAULT_MILESTONE_PHASES);
+          }
         } else {
+          setMilestonePhases(DEFAULT_MILESTONE_PHASES);
           setDoc(userDocRef, {
             uid: user.uid,
             email: user.email,
@@ -190,6 +202,7 @@ export default function App() {
             updatedAt: serverTimestamp()
           }).catch(err => console.error("Error initializing user doc:", err));
         }
+        setSettingsReady(true);
       });
       return () => unsubscribe();
     }
@@ -223,12 +236,18 @@ export default function App() {
     return () => unsubscribe();
   }, [selectedParticipantId, participants]);
 
-  const syncParticipantPhases = async (phases: MilestonePhase[], list: Participant[]) => {
+  const syncParticipantPhases = async (
+    phases: MilestonePhase[],
+    list: Participant[],
+    options?: AlignMilestonesOptions
+  ) => {
     const phaseCount = phases.length;
     await Promise.all(list.map(async (participant) => {
-      const aligned = alignMilestones(participant.milestones, phaseCount);
+      const aligned = alignMilestones(participant.milestones, phaseCount, options);
       const currentPhase = deriveCurrentPhase(aligned, phaseCount);
-      const shapeOk = milestonesMatchPhaseCount(participant.milestones, phaseCount);
+      const shapeOk =
+        !options?.removedPhaseIndex &&
+        milestonesMatchPhaseCount(participant.milestones, phaseCount);
       if (shapeOk && participant.currentPhase === currentPhase) return;
       try {
         await updateDoc(doc(db, 'participants', participant.id), {
@@ -242,12 +261,16 @@ export default function App() {
     }));
   };
 
-  // Keep participant milestone maps aligned when settings phase count changes
-  // or when legacy records still have a fixed 5-phase shape.
+  // Keep participant milestone maps aligned after settings are confirmed loaded
+  // (legacy shorter maps, missing keys, or stale currentPhase). Never auto-shrink
+  // here — shrinking without a known removed index corrupts completion history;
+  // explicit phase edits sync through handleMilestonePhasesChange instead.
   useEffect(() => {
-    if (!user || participants.length === 0) return;
+    if (!user || !settingsReady || participants.length === 0) return;
     const phaseCount = milestonePhases.length;
     const needsSync = participants.some((participant) => {
+      const existingCount = milestoneKeyCount(participant.milestones);
+      if (existingCount > phaseCount) return false;
       const aligned = alignMilestones(participant.milestones, phaseCount);
       return (
         !milestonesMatchPhaseCount(participant.milestones, phaseCount) ||
@@ -256,7 +279,7 @@ export default function App() {
     });
     if (!needsSync) return;
     void syncParticipantPhases(milestonePhases, participants);
-  }, [user?.uid, milestonePhases, participants]);
+  }, [user?.uid, settingsReady, milestonePhases, participants]);
 
   const selectedParticipant = participants.find(p => p.id === selectedParticipantId) || null;
   const currentUser: CurrentUser = user
@@ -557,9 +580,14 @@ export default function App() {
     setIsDark(resolveIsDark(pref));
   };
 
-  const handleMilestonePhasesChange = (phases: MilestonePhase[]) => {
+  const handleMilestonePhasesChange = (
+    phases: MilestonePhase[],
+    meta?: AlignMilestonesOptions
+  ) => {
+    const removedPhaseIndex =
+      meta?.removedPhaseIndex ?? detectRemovedPhaseIndex(milestonePhases, phases);
     setMilestonePhases(phases);
-    void syncParticipantPhases(phases, participants);
+    void syncParticipantPhases(phases, participants, { removedPhaseIndex });
   };
 
   const startEditingParticipant = () => {
