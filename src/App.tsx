@@ -5,8 +5,15 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { collection, query, where, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, updateDoc, setDoc, deleteField } from 'firebase/firestore';
 import { logAuditEvent } from './services/auditService';
 import { Button } from './components/ui/button';
-import { Card, CardContent } from './components/ui/card';
 import { Badge } from './components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from './components/ui/dialog';
 import {
   Sheet,
   SheetContent,
@@ -23,8 +30,10 @@ import AuthScreen, { AuthMode } from './components/AuthScreen';
 import AppSidebar from './components/AppSidebar';
 import ParticipantWorkspace from './components/ParticipantWorkspace';
 import HomeWelcome from './components/HomeWelcome';
+import ToastHost from './components/ToastHost';
 import { Menu, Moon, Sun, Settings, Trash2 } from 'lucide-react';
 import { cn } from './lib/utils';
+import { notify } from './lib/notify';
 import { buildPortalPayload, createShareToken, wrapSecureLinkError } from './lib/portal';
 import {
   alignMilestones,
@@ -428,6 +437,7 @@ export default function App() {
       setIsDeleting(false);
     } catch (err) {
       console.error("Delete Error:", err);
+      notify.error('Failed to delete participant. Please try again.');
     }
   };
 
@@ -464,6 +474,7 @@ export default function App() {
       setIsEditingParticipant(false);
     } catch (err) {
       console.error("Update Error:", err);
+      notify.error('Failed to update participant. Please try again.');
     }
   };
 
@@ -666,26 +677,29 @@ export default function App() {
   );
 
   if (!user) return (
-    <AuthScreen
-      authMode={authMode}
-      setAuthMode={handleAuthModeChange}
-      authEmail={authEmail}
-      setAuthEmail={setAuthEmail}
-      authDisplayName={authDisplayName}
-      setAuthDisplayName={setAuthDisplayName}
-      authJobTitle={authJobTitle}
-      setAuthJobTitle={setAuthJobTitle}
-      authPassword={authPassword}
-      setAuthPassword={setAuthPassword}
-      authConfirmPassword={authConfirmPassword}
-      setAuthConfirmPassword={setAuthConfirmPassword}
-      loginError={loginError}
-      authLoading={authLoading}
-      resetEmailSent={resetEmailSent}
-      onEmailAuth={handleEmailAuth}
-      onPasswordReset={handlePasswordReset}
-      onGoogleLogin={handleLogin}
-    />
+    <>
+      <AuthScreen
+        authMode={authMode}
+        setAuthMode={handleAuthModeChange}
+        authEmail={authEmail}
+        setAuthEmail={setAuthEmail}
+        authDisplayName={authDisplayName}
+        setAuthDisplayName={setAuthDisplayName}
+        authJobTitle={authJobTitle}
+        setAuthJobTitle={setAuthJobTitle}
+        authPassword={authPassword}
+        setAuthPassword={setAuthPassword}
+        authConfirmPassword={authConfirmPassword}
+        setAuthConfirmPassword={setAuthConfirmPassword}
+        loginError={loginError}
+        authLoading={authLoading}
+        resetEmailSent={resetEmailSent}
+        onEmailAuth={handleEmailAuth}
+        onPasswordReset={handlePasswordReset}
+        onGoogleLogin={handleLogin}
+      />
+      <ToastHost />
+    </>
   );
 
   return (
@@ -723,6 +737,7 @@ export default function App() {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
             onClick={() => handleThemeChange(isDark ? 'light' : 'dark')}
             className="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
           >
@@ -741,6 +756,7 @@ export default function App() {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={settingsOpen ? 'Close settings' : 'Open settings'}
             onClick={() => settingsOpen ? handleCloseSettings() : (() => { setSettingsOpen(true); setShowDashboard(false); setSelectedParticipantId(null); setSidebarCollapsed(true); })()}
             className={cn(
               "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full",
@@ -762,13 +778,16 @@ export default function App() {
         </aside>
 
         <div className="hidden md:block relative shrink-0 w-0 z-20 no-print">
-          <div
+          <button
+            type="button"
+            aria-expanded={!sidebarCollapsed}
+            aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             onClick={() => setSidebarCollapsed(v => !v)}
-            className="absolute top-0 bottom-0 -left-1 w-2 cursor-col-resize group"
+            className="absolute top-0 bottom-0 -left-1 w-2 cursor-col-resize group bg-transparent border-0 p-0"
             title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
-            <div className="absolute left-1/2 -translate-x-1/2 inset-y-0 w-px bg-transparent group-hover:bg-accent-500/50 dark:group-hover:bg-accent-400/50 transition-colors duration-150" />
-          </div>
+            <span className="absolute left-1/2 -translate-x-1/2 inset-y-0 w-px bg-transparent group-hover:bg-accent-500/50 dark:group-hover:bg-accent-400/50 transition-colors duration-150" />
+          </button>
         </div>
 
         <section className="flex-1 bg-slate-50 dark:bg-slate-950 overflow-y-auto custom-scrollbar transition-colors duration-300" data-main-scroll>
@@ -829,40 +848,38 @@ export default function App() {
         </section>
       </div>
 
-      {isDeleting && (
-        <div className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200">
-          <Card className="max-w-md w-full shadow-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 animate-in zoom-in-95 duration-200">
-            <CardContent className="p-8 space-y-6">
-              <div className="bg-red-50 dark:bg-red-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
-              </div>
-              <div className="text-center space-y-2">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Delete Profile?</h3>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
-                  Are you sure you want to delete <span className="text-slate-900 dark:text-white font-bold">{selectedParticipant?.name}</span>?
-                  This action is permanent and cannot be undone.
-                </p>
-              </div>
-              <div className="flex gap-3 pt-2">
-                <Button
-                  variant="ghost"
-                  onClick={() => setIsDeleting(false)}
-                  className="flex-1 font-bold text-slate-500 dark:text-slate-400"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleDeleteParticipant}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg shadow-red-100 dark:shadow-red-900/20"
-                >
-                  Delete Permanently
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+      <Dialog open={isDeleting} onOpenChange={setIsDeleting}>
+        <DialogContent className="sm:max-w-md" showCloseButton={false}>
+          <DialogHeader className="items-center text-center sm:text-center">
+            <div className="bg-red-50 dark:bg-red-900/20 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-2">
+              <Trash2 className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+            <DialogTitle className="text-xl font-bold tracking-tight">Delete Profile?</DialogTitle>
+            <DialogDescription className="font-medium">
+              Are you sure you want to delete{' '}
+              <span className="text-slate-900 dark:text-white font-bold">{selectedParticipant?.name}</span>?
+              This action is permanent and cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="border-0 bg-transparent p-0 sm:justify-stretch">
+            <Button
+              variant="ghost"
+              onClick={() => setIsDeleting(false)}
+              className="flex-1 font-bold text-slate-500 dark:text-slate-400"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteParticipant}
+              className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold shadow-lg shadow-red-100 dark:shadow-red-900/20"
+            >
+              Delete Permanently
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
+      <ToastHost />
     </div>
   );
 }
