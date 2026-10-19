@@ -123,4 +123,9 @@ The repository includes:
 - `firebase.json`: Firestore database/rules configuration.
 - `firebase-applet-config.json`: applet Firebase configuration fallback.
 
-If Google sign-in fails with an unauthorized-domain error, add the local or deployed domain to Firebase Authentication's authorized domains.
+If Google sign-in fails:
+
+1. **Authorized domains** — Firebase Console → Authentication → Settings → Authorized domains. Add every host users visit, including `caseplanr.app`, your `*.run.app` URL, Vercel hosts, and `localhost`.
+2. **Google provider** — Authentication → Sign-in method → Google → Enable.
+3. **API key referrers** — Google Cloud Console → APIs & Services → Credentials → your browser API key → Application restrictions → HTTP referrers. Include `https://caseplanr.app/*`, `http://localhost:*/*`, and other deploy URLs.
+4. **Cloud Run / custom domain** — The Express server sets `Cross-Origin-Opener-Policy: same-origin-allow-popups` so Firebase popup sign-in works (stricter COOP breaks Google login).

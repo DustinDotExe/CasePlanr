@@ -304,9 +304,15 @@ export default function App() {
       console.error("Login Error:", err);
       let message = "Login failed. Please check your connection and try again.";
       if (err.code === 'auth/unauthorized-domain') {
-        message = "This domain is not authorized in Firebase. Please add it to the 'Authorized domains' list in the Firebase Console.";
+        message = "This domain is not authorized in Firebase. Add it under Authentication → Settings → Authorized domains (e.g. caseplanr.app).";
       } else if (err.code === 'auth/popup-blocked') {
         message = "Login popup was blocked by your browser. Please allow popups for this site.";
+      } else if (err.code === 'auth/operation-not-allowed') {
+        message = "Google sign-in is disabled in Firebase. Enable the Google provider under Authentication → Sign-in method.";
+      } else if (err.code === 'auth/invalid-api-key') {
+        message = "Firebase API key rejected. Check Google Cloud Console API key HTTP referrer restrictions for this domain.";
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        message = "Sign-in was cancelled. If you did not close the window, your browser may be blocking the popup (or COOP headers on this host).";
       }
       setLoginError(message);
     }
