@@ -1,6 +1,6 @@
-# CaseSync
+# CasePlanr
 
-CaseSync is a React/Firebase case planning tool for court case managers. It helps authorized users maintain participant profiles, track phase progress, draft SMART goals, record observations, and produce printable case plan documents.
+CasePlanr is a React/Firebase case planning tool for court case managers. It helps authorized users maintain participant profiles, track phase progress, draft SMART goals, record observations, and produce printable case plan documents.
 
 The app is currently geared toward testing with Johnson County Problem Solving Courts.
 
