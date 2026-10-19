@@ -21,8 +21,9 @@ import {
   SheetHeader,
   SheetTitle
 } from './components/ui/sheet';
-import { Participant, CurrentUser, StoredTemplateCategory, MilestonePhase, DEFAULT_MILESTONE_PHASES, normalizeGoals, Signature, ParticipantPortal } from './types';
+import { Participant, CurrentUser, StoredTemplateCategory, StoredGoalBatch, MilestonePhase, DEFAULT_MILESTONE_PHASES, normalizeGoals, Signature, ParticipantPortal } from './types';
 import { DEFAULT_STORED_TEMPLATES } from './components/AIGoalRefiner';
+import { GOAL_BATCHES, sanitizeGoalBatches } from './lib/goalBatches';
 import UserSettings from './components/UserSettings';
 import CasePlanrLogo from './components/CasePlanrLogo';
 import CaseloadDashboard from './components/CaseloadDashboard';
@@ -81,6 +82,7 @@ export default function App() {
   const [userTitle, setUserTitle] = useState('Court Case Manager');
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [goalTemplates, setGoalTemplates] = useState<StoredTemplateCategory[]>(DEFAULT_STORED_TEMPLATES);
+  const [goalBatches, setGoalBatches] = useState<StoredGoalBatch[]>(GOAL_BATCHES);
   const [milestonePhases, setMilestonePhases] = useState<MilestonePhase[]>(DEFAULT_MILESTONE_PHASES);
   /** False until the current user's settings doc snapshot has been observed. */
   const [settingsReady, setSettingsReady] = useState(false);
@@ -194,6 +196,7 @@ export default function App() {
           const data = docSnap.data();
           setUserTitle(data.title || 'Court Case Manager');
           if (data.goalTemplates?.length) setGoalTemplates(data.goalTemplates);
+          if (Array.isArray(data.goalBatches)) setGoalBatches(sanitizeGoalBatches(data.goalBatches));
           if (data.milestonePhases?.length) {
             setMilestonePhases(data.milestonePhases);
           } else {
@@ -803,6 +806,8 @@ export default function App() {
               onPaletteChange={handlePaletteChange}
               goalTemplates={goalTemplates}
               onGoalTemplatesChange={setGoalTemplates}
+              goalBatches={goalBatches}
+              onGoalBatchesChange={setGoalBatches}
               milestonePhases={milestonePhases}
               onMilestonePhasesChange={handleMilestonePhasesChange}
             />
@@ -814,6 +819,7 @@ export default function App() {
               userTitle={userTitle}
               milestonePhases={milestonePhases}
               goalTemplates={goalTemplates}
+              goalBatches={goalBatches}
               portalDoc={portalDoc}
               activeTab={activeTab}
               onActiveTabChange={setActiveTab}

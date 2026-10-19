@@ -1,16 +1,15 @@
-import { GoalEntry } from '../types';
+import { GoalEntry, StoredGoalBatch } from '../types';
 
-export interface GoalBatch {
-  id: string;
-  label: string;
-  goals: string[];
-}
+export type GoalBatch = StoredGoalBatch;
+
+export const MAX_GOAL_BATCHES = 20;
+export const MAX_GOALS_PER_BATCH = 20;
 
 /**
  * Finished goal text, added as-is to Active SMART Goals.
  * The SSC set matches the standard treatment-phase starter.
  */
-export const GOAL_BATCHES: GoalBatch[] = [
+export const GOAL_BATCHES: StoredGoalBatch[] = [
   {
     id: 'ssc-treatment',
     label: 'SSC Treatment Phase',
@@ -49,6 +48,31 @@ export const GOAL_BATCHES: GoalBatch[] = [
     ],
   },
 ];
+
+export function sanitizeGoalBatches(raw: unknown): StoredGoalBatch[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  const batches: StoredGoalBatch[] = [];
+  for (const item of raw) {
+    if (batches.length >= MAX_GOAL_BATCHES) break;
+    if (!item || typeof item !== 'object') continue;
+    const record = item as Record<string, unknown>;
+    const label = typeof record.label === 'string' ? record.label.trim() : '';
+    const goals = Array.isArray(record.goals)
+      ? record.goals
+          .filter((goal): goal is string => typeof goal === 'string')
+          .map((goal) => goal.trim())
+          .filter(Boolean)
+          .slice(0, MAX_GOALS_PER_BATCH)
+      : [];
+    if (!label || goals.length === 0) continue;
+    let id = typeof record.id === 'string' ? record.id.trim() : '';
+    if (!id || seen.has(id)) id = crypto.randomUUID();
+    seen.add(id);
+    batches.push({ id, label, goals });
+  }
+  return batches;
+}
 
 export function buildGoalEntries(
   texts: string[],

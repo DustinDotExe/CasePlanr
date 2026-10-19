@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { db } from '../firebase';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { Participant, CurrentUser, StoredTemplateCategory, GoalEntry } from '../types';
+import { Participant, CurrentUser, StoredTemplateCategory, StoredGoalBatch, GoalEntry } from '../types';
 import { logAuditEvent } from '../services/auditService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
@@ -207,7 +207,7 @@ export const DEFAULT_STORED_TEMPLATES: StoredTemplateCategory[] = GOAL_TEMPLATES
   ({ domain, shortLabel, templates }) => ({ domain, shortLabel, templates })
 );
 
-export default function AIGoalRefiner({ participant, currentUser, goalTemplates }: { participant: Participant; currentUser: CurrentUser; goalTemplates?: StoredTemplateCategory[] | null }) {
+export default function AIGoalRefiner({ participant, currentUser, goalTemplates, goalBatches }: { participant: Participant; currentUser: CurrentUser; goalTemplates?: StoredTemplateCategory[] | null; goalBatches?: StoredGoalBatch[] | null }) {
   const [roughNotes, setRoughNotes] = useState('');
   const [refinedGoal, setRefinedGoal] = useState('');
   const [loading, setLoading] = useState(false);
@@ -227,6 +227,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
     Icon: DOMAIN_ICONS[cat.domain] ?? BookOpen,
   }));
   const currentDomain = activeDomain ?? effectiveTemplates[0]?.domain ?? '';
+  const effectiveBatches = goalBatches ?? GOAL_BATCHES;
 
   const handleRefine = async () => {
     if (!roughNotes.trim()) return;
@@ -438,7 +439,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
                     </button>
                   ))}
                 </div>
-                <div className="mt-3 pt-3 border-t border-accent-100 dark:border-accent-900/40">
+                {effectiveBatches.length > 0 && <div className="mt-3 pt-3 border-t border-accent-100 dark:border-accent-900/40">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-600 dark:text-accent-400 mb-1 flex items-center gap-1.5">
                     <Layers className="w-3 h-3" />
                     Preselected batches
@@ -447,7 +448,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
                     Adds every goal in the set at once. You set one due date for the group.
                   </p>
                   <div className="space-y-1.5">
-                    {GOAL_BATCHES.map(batch => (
+                    {effectiveBatches.map(batch => (
                       <button
                         key={batch.id}
                         type="button"
@@ -465,7 +466,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
                       </button>
                     ))}
                   </div>
-                </div>
+                </div>}
               </div>
             )}
             <Textarea

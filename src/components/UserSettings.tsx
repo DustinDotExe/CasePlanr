@@ -8,8 +8,9 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Moon, Monitor, Sun, LogOut, Check, ChevronLeft, Plus, Pencil, Trash2, X, RotateCcw, ChevronDown } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { StoredTemplateCategory, MilestonePhase, DEFAULT_MILESTONE_PHASES, MAX_MILESTONE_PHASES } from '../types';
+import { StoredGoalBatch, StoredTemplateCategory, MilestonePhase, DEFAULT_MILESTONE_PHASES, MAX_MILESTONE_PHASES } from '../types';
 import { DEFAULT_STORED_TEMPLATES } from './AIGoalRefiner';
+import { GOAL_BATCHES, MAX_GOAL_BATCHES, MAX_GOALS_PER_BATCH } from '../lib/goalBatches';
 
 interface UserSettingsProps {
   onClose: () => void;
@@ -22,6 +23,8 @@ interface UserSettingsProps {
   onPaletteChange: (color: 'orange' | 'blue' | 'red' | 'green' | 'purple') => void;
   goalTemplates: StoredTemplateCategory[];
   onGoalTemplatesChange: (templates: StoredTemplateCategory[]) => void;
+  goalBatches: StoredGoalBatch[];
+  onGoalBatchesChange: (batches: StoredGoalBatch[]) => void;
   milestonePhases: MilestonePhase[];
   onMilestonePhasesChange: (
     phases: MilestonePhase[],
@@ -71,6 +74,7 @@ export default function UserSettings({
   onClose, user, userTitle, isDark,
   onThemeChange, themePreference, paletteColor, onPaletteChange,
   goalTemplates, onGoalTemplatesChange,
+  goalBatches, onGoalBatchesChange,
   milestonePhases, onMilestonePhasesChange,
 }: UserSettingsProps) {
   const [displayName, setDisplayName] = useState(user.displayName || '');
@@ -83,7 +87,16 @@ export default function UserSettings({
   const hasPasswordProvider = auth.currentUser?.providerData.some(p => p.providerId === 'password') ?? false;
 
   const [localTemplates, setLocalTemplates] = useState<StoredTemplateCategory[]>(goalTemplates);
+  const [localBatches, setLocalBatches] = useState<StoredGoalBatch[]>(goalBatches);
   const [localPhases, setLocalPhases] = useState<MilestonePhase[]>(milestonePhases);
+  const [expandedBatches, setExpandedBatches] = useState<Record<string, boolean>>({});
+  const [editingBatchKey, setEditingBatchKey] = useState<string | null>(null);
+  const [editBatchLabel, setEditBatchLabel] = useState('');
+  const [editBatchGoal, setEditBatchGoal] = useState('');
+  const [addingGoalTo, setAddingGoalTo] = useState<string | null>(null);
+  const [addingBatch, setAddingBatch] = useState(false);
+  const [newBatchLabel, setNewBatchLabel] = useState('');
+  const [newBatchGoal, setNewBatchGoal] = useState('');
   const [expandedCats, setExpandedCats] = useState<Record<number, boolean>>({});
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [editLabel, setEditLabel] = useState('');
@@ -94,6 +107,7 @@ export default function UserSettings({
 
   useEffect(() => {
     setLocalTemplates(goalTemplates);
+    setLocalBatches(goalBatches);
     setLocalPhases(milestonePhases);
     setDisplayName(user.displayName || '');
     setTitle(userTitle);
@@ -107,6 +121,70 @@ export default function UserSettings({
     } catch (err) {
       console.error('Save templates error:', err);
     }
+  };
+
+  const persistBatches = async (updated: StoredGoalBatch[]) => {
+    setLocalBatches(updated);
+    onGoalBatchesChange(updated);
+    try {
+      await updateDoc(doc(db, 'users', user.uid), { goalBatches: updated, updatedAt: serverTimestamp() });
+    } catch (err) {
+      console.error('Save goal batches error:', err);
+    }
+  };
+
+  const saveBatchLabel = async (batchId: string) => {
+    const label = editBatchLabel.trim();
+    if (!label) return;
+    const updated = localBatches.map(batch => batch.id === batchId ? { ...batch, label } : batch);
+    setEditingBatchKey(null);
+    await persistBatches(updated);
+  };
+
+  const saveBatchGoal = async (batchId: string, goalIdx: number) => {
+    const text = editBatchGoal.trim();
+    if (!text) return;
+    const updated = localBatches.map(batch => batch.id !== batchId ? batch : {
+      ...batch,
+      goals: batch.goals.map((goal, i) => i === goalIdx ? text : goal),
+    });
+    setEditingBatchKey(null);
+    await persistBatches(updated);
+  };
+
+  const deleteBatchGoal = async (batchId: string, goalIdx: number) => {
+    const batch = localBatches.find(item => item.id === batchId);
+    if (!batch || batch.goals.length <= 1) return;
+    const updated = localBatches.map(item => item.id !== batchId ? item : {
+      ...item,
+      goals: item.goals.filter((_, i) => i !== goalIdx),
+    });
+    setEditingBatchKey(null);
+    await persistBatches(updated);
+  };
+
+  const addGoalToBatch = async (batchId: string) => {
+    const text = editBatchGoal.trim();
+    if (!text) return;
+    const updated = localBatches.map(batch => batch.id !== batchId ? batch : {
+      ...batch,
+      goals: [...batch.goals, text].slice(0, MAX_GOALS_PER_BATCH),
+    });
+    setAddingGoalTo(null);
+    setEditBatchGoal('');
+    await persistBatches(updated);
+  };
+
+  const addBatch = async () => {
+    const label = newBatchLabel.trim();
+    const goal = newBatchGoal.trim();
+    if (!label || !goal) return;
+    const batch: StoredGoalBatch = { id: crypto.randomUUID(), label, goals: [goal] };
+    setAddingBatch(false);
+    setNewBatchLabel('');
+    setNewBatchGoal('');
+    setExpandedBatches(prev => ({ ...prev, [batch.id]: true }));
+    await persistBatches([...localBatches, batch]);
   };
 
   const persistPhases = async (
@@ -444,6 +522,224 @@ export default function UserSettings({
                 )}
               </div>
             ))}
+          </div>
+        </Section>
+
+        {/* My Goal Batches */}
+        <Section>
+          <SectionHeader
+            label="My Goal Batches"
+            description="A batch adds every goal in the set at once."
+            action={
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => persistBatches(GOAL_BATCHES)}
+                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 gap-1 shrink-0 h-7 px-2"
+              >
+                <RotateCcw className="w-3 h-3" />
+                <span className="hidden sm:inline">Reset to Agency Batches</span>
+              </Button>
+            }
+          />
+          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            {localBatches.length === 0 && (
+              <p className="px-4 sm:px-6 py-4 text-sm text-slate-400 dark:text-slate-500">No batches yet.</p>
+            )}
+            {localBatches.map((batch) => {
+              const labelKey = `label:${batch.id}`;
+              return (
+                <div key={batch.id}>
+                  <div className="flex items-center gap-1 pr-3 sm:pr-4">
+                    <button
+                      onClick={() => setExpandedBatches(prev => ({ ...prev, [batch.id]: !prev[batch.id] }))}
+                      className="flex-1 min-w-0 flex items-center justify-between px-4 sm:px-6 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left"
+                    >
+                      <span className="text-sm text-slate-700 dark:text-slate-300 truncate">{batch.label}</span>
+                      <span className="ml-3 flex items-center gap-2.5 shrink-0">
+                        <span className="text-xs font-medium text-slate-400 dark:text-slate-500 tabular-nums bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">{batch.goals.length}</span>
+                        <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform duration-200", expandedBatches[batch.id] && "rotate-180")} />
+                      </span>
+                    </button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        setEditingBatchKey(labelKey);
+                        setEditBatchLabel(batch.label);
+                        setAddingGoalTo(null);
+                        setAddingBatch(false);
+                        setExpandedBatches(prev => ({ ...prev, [batch.id]: true }));
+                      }}
+                      className="h-7 w-7 shrink-0 text-slate-300 dark:text-slate-600 hover:text-accent-600 dark:hover:text-accent-400"
+                      aria-label={`Rename ${batch.label}`}
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => persistBatches(localBatches.filter(item => item.id !== batch.id))}
+                      className="h-7 w-7 shrink-0 text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400"
+                      aria-label={`Delete ${batch.label}`}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </div>
+
+                  {expandedBatches[batch.id] && (
+                    <div className="border-t border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-950/30">
+                      {editingBatchKey === labelKey && (
+                        <div className="px-4 sm:px-6 py-3 space-y-2">
+                          <Input
+                            value={editBatchLabel}
+                            onChange={e => setEditBatchLabel(e.target.value)}
+                            placeholder="Batch name"
+                            className="h-8 text-sm bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500"
+                            autoFocus
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <Button size="sm" variant="ghost" onClick={() => setEditingBatchKey(null)} className="text-sm text-slate-500">
+                              <X className="w-3 h-3 mr-1" /> Cancel
+                            </Button>
+                            <Button size="sm" onClick={() => saveBatchLabel(batch.id)} disabled={!editBatchLabel.trim()} className="text-sm bg-accent-600 hover:bg-accent-700 text-white">
+                              <Check className="w-3 h-3 mr-1" /> Save
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                      {batch.goals.map((goal, goalIdx) => {
+                        const goalKey = `goal:${batch.id}:${goalIdx}`;
+                        return (
+                          <div key={goalKey} className="px-4 sm:px-6 py-3">
+                            {editingBatchKey === goalKey ? (
+                              <div className="space-y-2">
+                                <Textarea
+                                  value={editBatchGoal}
+                                  onChange={e => setEditBatchGoal(e.target.value)}
+                                  placeholder="Goal text added to the case plan"
+                                  className="text-sm min-h-[64px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
+                                  autoFocus
+                                />
+                                <div className="flex gap-2 justify-end">
+                                  <Button size="sm" variant="ghost" onClick={() => setEditingBatchKey(null)} className="text-sm text-slate-500">
+                                    <X className="w-3 h-3 mr-1" /> Cancel
+                                  </Button>
+                                  <Button size="sm" onClick={() => saveBatchGoal(batch.id, goalIdx)} disabled={!editBatchGoal.trim()} className="text-sm bg-accent-600 hover:bg-accent-700 text-white">
+                                    <Check className="w-3 h-3 mr-1" /> Save
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex items-start justify-between gap-2">
+                                <span className="text-sm text-slate-600 dark:text-slate-400 leading-snug">{goal}</span>
+                                <div className="flex gap-0.5 shrink-0">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => {
+                                      setEditingBatchKey(goalKey);
+                                      setEditBatchGoal(goal);
+                                      setAddingGoalTo(null);
+                                      setAddingBatch(false);
+                                    }}
+                                    className="h-7 w-7 text-slate-400 hover:text-accent-600 dark:hover:text-accent-400"
+                                    aria-label="Edit goal"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => deleteBatchGoal(batch.id, goalIdx)}
+                                    disabled={batch.goals.length <= 1}
+                                    className="h-7 w-7 text-slate-400 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30"
+                                    aria-label="Remove goal"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+
+                      {addingGoalTo === batch.id ? (
+                        <div className="px-4 sm:px-6 py-3 space-y-2">
+                          <Textarea
+                            value={editBatchGoal}
+                            onChange={e => setEditBatchGoal(e.target.value)}
+                            placeholder="Goal text added to the case plan"
+                            className="text-sm min-h-[56px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
+                            autoFocus
+                          />
+                          <div className="flex gap-2 justify-end">
+                            <Button size="sm" variant="ghost" onClick={() => { setAddingGoalTo(null); setEditBatchGoal(''); }} className="text-sm text-slate-500">
+                              <X className="w-3 h-3 mr-1" /> Cancel
+                            </Button>
+                            <Button size="sm" onClick={() => addGoalToBatch(batch.id)} disabled={!editBatchGoal.trim()} className="text-sm bg-accent-600 hover:bg-accent-700 text-white">
+                              <Check className="w-3 h-3 mr-1" /> Add
+                            </Button>
+                          </div>
+                        </div>
+                      ) : batch.goals.length < MAX_GOALS_PER_BATCH ? (
+                        <button
+                          onClick={() => {
+                            setAddingGoalTo(batch.id);
+                            setEditingBatchKey(null);
+                            setEditBatchGoal('');
+                            setAddingBatch(false);
+                          }}
+                          className="w-full flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                        >
+                          <Plus className="w-3 h-3" /> Add goal
+                        </button>
+                      ) : null}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {addingBatch ? (
+              <div className="px-4 sm:px-6 py-3 space-y-2">
+                <Input
+                  value={newBatchLabel}
+                  onChange={e => setNewBatchLabel(e.target.value)}
+                  placeholder="Batch name"
+                  className="h-8 text-sm bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500"
+                  autoFocus
+                />
+                <Textarea
+                  value={newBatchGoal}
+                  onChange={e => setNewBatchGoal(e.target.value)}
+                  placeholder="First goal in the batch"
+                  className="text-sm min-h-[56px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
+                />
+                <div className="flex gap-2 justify-end">
+                  <Button size="sm" variant="ghost" onClick={() => { setAddingBatch(false); setNewBatchLabel(''); setNewBatchGoal(''); }} className="text-sm text-slate-500">
+                    <X className="w-3 h-3 mr-1" /> Cancel
+                  </Button>
+                  <Button size="sm" onClick={addBatch} disabled={!newBatchLabel.trim() || !newBatchGoal.trim()} className="text-sm bg-accent-600 hover:bg-accent-700 text-white">
+                    <Check className="w-3 h-3 mr-1" /> Add
+                  </Button>
+                </div>
+              </div>
+            ) : localBatches.length < MAX_GOAL_BATCHES ? (
+              <button
+                onClick={() => {
+                  setAddingBatch(true);
+                  setAddingGoalTo(null);
+                  setEditingBatchKey(null);
+                  setNewBatchLabel('');
+                  setNewBatchGoal('');
+                }}
+                className="w-full flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+              >
+                <Plus className="w-3 h-3" /> Add batch
+              </button>
+            ) : null}
           </div>
         </Section>
 

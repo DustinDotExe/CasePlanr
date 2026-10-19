@@ -141,6 +141,12 @@ export interface StoredTemplateCategory {
   templates: StoredGoalTemplate[];
 }
 
+export interface StoredGoalBatch {
+  id: string;
+  label: string;
+  goals: string[];
+}
+
 export interface UserProfile {
   uid: string;
   email: string;
