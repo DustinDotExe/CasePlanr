@@ -14,7 +14,7 @@ export const GOAL_BATCHES: StoredGoalBatch[] = [
     id: 'psc-defaults',
     label: 'PSC Defaults',
     goals: [
-      'Successfully complete all scheduled sessions of the SSC treatment program for the duration of the program phase.',
+      'Successfully complete all scheduled sessions of the recommended treatment program for the duration of the program phase.',
       'The participant will attend a minimum of three self-help meetings or other qualifying prosocial events per week throughout the current program phase.',
       'The participant will meet with their assigned peer mentor at least twice per month for the duration of the program phase.',
       'The participant will submit to twice-weekly random urine drug screens for the next 90 days.',

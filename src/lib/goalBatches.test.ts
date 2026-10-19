@@ -10,7 +10,7 @@ describe('GOAL_BATCHES', () => {
     assert.equal(batch.goals.length, 4);
     assert.equal(
       batch.goals[0],
-      'Successfully complete all scheduled sessions of the SSC treatment program for the duration of the program phase.',
+      'Successfully complete all scheduled sessions of the recommended treatment program for the duration of the program phase.',
     );
     assert.match(batch.goals[1], /three self-help meetings/);
     assert.match(batch.goals[2], /peer mentor at least twice per month/);
