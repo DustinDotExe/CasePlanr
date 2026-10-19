@@ -81,65 +81,65 @@ export default function CourtReport({
   return (
     <div className="space-y-6">
       <div ref={reportRef} data-report-container className="print:m-0 print:p-0">
-        <Card className="bg-white dark:bg-slate-900 max-w-5xl mx-auto overflow-visible print:max-w-none print:shadow-none print:border-none shadow-lg border-slate-200 dark:border-slate-800">
-        <CardHeader className="bg-white dark:bg-slate-900 space-y-3">
+        <Card className="bg-white dark:bg-neutral-900 max-w-5xl mx-auto overflow-visible print:max-w-none print:shadow-none print:border-none shadow-lg border-slate-200 dark:border-neutral-800">
+        <CardHeader className="bg-white dark:bg-neutral-900 space-y-3">
           <div className="grid grid-cols-3 items-start gap-4">
             <div className="col-span-2 space-y-1">
-              <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
+              <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-neutral-100 tracking-tight leading-snug">
                 {participant.name} /<br className="sm:hidden print:hidden" /> Case Plan
               </h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">Created on {new Date().toLocaleDateString()}</p>
+              <p className="text-slate-500 dark:text-neutral-400 text-sm font-medium">Created on {new Date().toLocaleDateString()}</p>
             </div>
-            <div className="hidden sm:flex items-center justify-center gap-2 font-bold text-lg md:text-xl text-slate-900 dark:text-slate-100">
+            <div className="hidden sm:flex items-center justify-center gap-2 font-bold text-lg md:text-xl text-slate-900 dark:text-neutral-100">
               <CasePlanrLogo className="w-8 h-8" />
               <span>CasePlanr</span>
             </div>
           </div>
 
-          <Separator className="bg-slate-100 dark:bg-slate-800" />
+          <Separator className="bg-slate-100 dark:bg-neutral-800" />
 
           {/* Participant info strip */}
-          <section className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-center divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800">
+          <section className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-center divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-neutral-800">
             <div className="text-center py-1.5 pt-0 sm:py-0">
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Participant</p>
-              <p className="text-base font-bold text-slate-800 dark:text-slate-200">{participant.name}</p>
+              <p className="text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider mb-0.5">Participant</p>
+              <p className="text-base font-bold text-slate-800 dark:text-neutral-200">{participant.name}</p>
             </div>
             <div className="text-center py-1.5 sm:py-0">
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Current Phase</p>
-              <p className="text-base font-bold text-slate-800 dark:text-slate-200">{participant.currentPhase}</p>
+              <p className="text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider mb-0.5">Current Phase</p>
+              <p className="text-base font-bold text-slate-800 dark:text-neutral-200">{participant.currentPhase}</p>
             </div>
             <div className="text-center py-1.5 pb-0 sm:py-0">
-              <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Case Number</p>
-              <p className="text-base font-bold text-slate-800 dark:text-slate-200">{participant.caseNumber}</p>
+              <p className="text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider mb-0.5">Case Number</p>
+              <p className="text-base font-bold text-slate-800 dark:text-neutral-200">{participant.caseNumber}</p>
             </div>
           </section>
 
-          <Separator className="bg-slate-100 dark:bg-slate-800" />
+          <Separator className="bg-slate-100 dark:bg-neutral-800" />
         </CardHeader>
 
         <CardContent className="px-6 md:px-10 space-y-4">
           {/* IRAS Domains */}
           <section className="space-y-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-neutral-100 uppercase tracking-wider flex items-center gap-2">
               <LayoutDashboard className="w-4 h-4 text-accent-600 dark:text-accent-400" />
               Target Domains
             </h3>
             <div className="flex flex-wrap gap-2">
               {participant.irasDomains && participant.irasDomains.length > 0 ? (
                 participant.irasDomains.map((domain, i) => (
-                  <Badge key={i} variant="outline" className="border-accent-200 dark:border-accent-900 bg-accent-50 dark:bg-accent-950/30 text-accent-700 dark:text-accent-400 font-bold px-3 py-1">
+                  <Badge key={i} variant="outline" className="border-accent-200 dark:border-neutral-700 bg-accent-50 dark:bg-neutral-800/50 text-accent-700 dark:text-accent-400 font-bold px-3 py-1">
                     {domain}
                   </Badge>
                 ))
               ) : (
-                <p className="text-sm text-slate-400 dark:text-slate-500 italic">No target domains selected.</p>
+                <p className="text-sm text-slate-400 dark:text-neutral-500 italic">No target domains selected.</p>
               )}
             </div>
           </section>
 
-          <Separator className="bg-slate-100 dark:bg-slate-800" />
+          <Separator className="bg-slate-100 dark:bg-neutral-800" />
           <section className="space-y-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-neutral-100 uppercase tracking-wider flex items-center gap-2">
               <Target className="w-4 h-4 text-accent-600 dark:text-accent-400" />
               Active SMART Goals
             </h3>
@@ -182,13 +182,13 @@ export default function CourtReport({
                   };
 
                   return (
-                    <div key={goal.id} className={`pl-4 border-l-2 py-1.5 group ${overdue ? 'border-red-300 dark:border-red-800' : 'border-accent-200 dark:border-accent-900'}`}>
+                    <div key={goal.id} className={`pl-4 border-l-2 py-1.5 group ${overdue ? 'border-red-300 dark:border-red-800' : 'border-accent-200 dark:border-neutral-700'}`}>
                       <div className="flex items-center gap-3">
                         <Checkbox
                           id={`goal-${goal.id}`}
                           checked={isCompleted}
                           onCheckedChange={handleToggleGoal}
-                          className="w-4 h-4 no-print border-slate-300 dark:border-slate-700 data-[state=checked]:bg-accent-600 data-[state=checked]:border-accent-600"
+                          className="w-4 h-4 no-print border-slate-300 dark:border-neutral-700 data-[state=checked]:bg-accent-600 data-[state=checked]:border-accent-600"
                         />
                         <span
                           aria-hidden="true"
@@ -197,7 +197,7 @@ export default function CourtReport({
                         />
                         <Label
                           htmlFor={`goal-${goal.id}`}
-                          className={`text-sm leading-relaxed cursor-pointer transition-colors ${isCompleted ? 'text-slate-400 dark:text-slate-600 line-through' : 'text-slate-700 dark:text-slate-300'}`}
+                          className={`text-sm leading-relaxed cursor-pointer transition-colors ${isCompleted ? 'text-slate-400 dark:text-neutral-600 line-through' : 'text-slate-700 dark:text-neutral-300'}`}
                         >
                           {goal.text}
                         </Label>
@@ -208,13 +208,13 @@ export default function CourtReport({
                       {(goal.dueDate || goal.reviewedOn) && (
                         <div className="flex flex-wrap items-center gap-4 mt-1 pl-7">
                           {goal.dueDate && (
-                            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold ${overdue ? 'text-red-500 dark:text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                            <span className={`inline-flex items-center gap-1 text-[10px] font-semibold ${overdue ? 'text-red-500 dark:text-red-400' : 'text-slate-400 dark:text-neutral-500'}`}>
                               <CalendarDays className="w-3 h-3 shrink-0" />
                               Due: {formatGoalDate(goal.dueDate)}
                             </span>
                           )}
                           {goal.reviewedOn && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-neutral-500">
                               <CalendarCheck className="w-3 h-3 shrink-0" />
                               Reviewed: {formatGoalDate(goal.reviewedOn)}
                             </span>
@@ -225,21 +225,21 @@ export default function CourtReport({
                   );
                 })
               ) : (
-                <p className="text-sm text-slate-400 dark:text-slate-500 italic">No specific goals recorded for this period.</p>
+                <p className="text-sm text-slate-400 dark:text-neutral-500 italic">No specific goals recorded for this period.</p>
               )}
             </div>
           </section>
 
-          <Separator className="bg-slate-100 dark:bg-slate-800" />
+          <Separator className="bg-slate-100 dark:bg-neutral-800" />
 
           {/* Notes Section */}
           <section className="space-y-4">
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-neutral-100 uppercase tracking-wider flex items-center gap-2">
               <FileText className="w-4 h-4 text-accent-600 dark:text-accent-400" />
               Case Manager Observations
             </h3>
-            <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-xl border border-slate-100 dark:border-slate-800 min-h-[100px] print:bg-white print:border-none print:p-0">
-              <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed print:text-slate-700">
+            <div className="bg-slate-50 dark:bg-neutral-950 p-6 rounded-xl border border-slate-100 dark:border-neutral-800 min-h-[100px] print:bg-white print:border-none print:p-0">
+              <p className="text-sm text-slate-700 dark:text-neutral-300 whitespace-pre-wrap leading-relaxed print:text-slate-700">
                 {participant.notes || "No observations recorded for this period."}
               </p>
             </div>
@@ -269,7 +269,7 @@ export default function CourtReport({
         {actions}
         <Button
           onClick={() => window.print()}
-          className="w-full sm:w-auto bg-accent-600 hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-600 text-white font-semibold shadow-sm shadow-accent-100 dark:shadow-accent-900/20 transition-all active:scale-[0.98]"
+          className="w-full sm:w-auto bg-accent-600 hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-600 text-white font-semibold shadow-sm shadow-accent-100 dark:shadow-black/40 transition-all active:scale-[0.98]"
         >
           <Printer className="w-4 h-4" />
           Print / Save as PDF

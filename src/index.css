@@ -239,6 +239,73 @@
   --ring: #9333ea;
 }
 
+/* Neutral — black / white primary, grey scale (no chroma accent) */
+:root[data-palette="neutral"] {
+  --color-accent-50:  #fafafa;
+  --color-accent-100: #f5f5f5;
+  --color-accent-200: #e5e5e5;
+  --color-accent-300: #d4d4d4;
+  --color-accent-400: #a3a3a3;
+  --color-accent-500: #737373;
+  --color-accent-600: #171717;
+  --color-accent-700: #0a0a0a;
+  --color-accent-800: #000000;
+  --color-accent-900: #000000;
+  --color-accent-950: #000000;
+  --primary: #171717;
+  --primary-foreground: #fafafa;
+  --accent: #f5f5f5;
+  --accent-foreground: #171717;
+  --ring: #737373;
+}
+.dark[data-palette="neutral"] {
+  --color-accent-50:  #262626;
+  --color-accent-100: #404040;
+  --color-accent-200: #525252;
+  --color-accent-300: #737373;
+  --color-accent-400: #a3a3a3;
+  --color-accent-500: #ffffff;
+  --color-accent-600: #ffffff;
+  --color-accent-700: #e5e5e5;
+  --color-accent-800: #d4d4d4;
+  --color-accent-900: #a3a3a3;
+  --color-accent-950: #737373;
+  --primary: #ffffff;
+  --primary-foreground: #171717;
+  --accent: #404040;
+  --accent-foreground: #fafafa;
+  --ring: #a3a3a3;
+}
+
+/* Neutral dark: primary fills are white — dark text; stronger affordance than flat grey */
+.dark[data-palette="neutral"] :is(.bg-accent-500, .bg-accent-600, .bg-accent-700).text-white,
+.dark[data-palette="neutral"] :is(.bg-accent-500, .bg-accent-600) .text-white {
+  color: #171717 !important;
+}
+
+.dark[data-palette="neutral"] :is(.bg-accent-500, .bg-accent-600).text-white {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+}
+
+/* Logo: dark fill + light glyphs in light mode; inverted in dark mode */
+[data-palette="neutral"] .caseplanr-logo {
+  color: #171717;
+}
+
+.dark[data-palette="neutral"] .caseplanr-logo {
+  color: #fafafa;
+}
+
+.dark[data-palette="neutral"] .caseplanr-logo .caseplanr-logo-mark {
+  stroke: #171717;
+}
+
+/* Dark UI surfaces stay neutral grey; palette only tints --color-accent-* (CTAs, links). */
+.dark[data-palette] {
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+}
+
 @media print {
   /* ── Page setup ──────────────────────────────────────────── */
   @page {
@@ -498,36 +565,36 @@
 }
 
 .dark {
-    --background: #0f172a;
+    --background: #0a0a0a;
     --foreground: #fafafa;
-    --card: #262626;
+    --card: #171717;
     --card-foreground: #fafafa;
-    --popover: #262626;
+    --popover: #171717;
     --popover-foreground: #fafafa;
-    --primary: #60a5fa;
-    --primary-foreground: #172554;
-    --secondary: #404040;
+    --primary: #fafafa;
+    --primary-foreground: #171717;
+    --secondary: #262626;
     --secondary-foreground: #fafafa;
-    --muted: #404040;
+    --muted: #262626;
     --muted-foreground: #a3a3a3;
-    --accent: #1e3a8a;
-    --accent-foreground: #93c5fd;
+    --accent: #262626;
+    --accent-foreground: #fafafa;
     --destructive: #991b1b;
-    --border: rgba(255, 255, 255, 0.1);
-    --input: rgba(255, 255, 255, 0.15);
-    --ring: #2563eb;
+    --border: #404040;
+    --input: #404040;
+    --ring: #737373;
     --chart-1: #d4d4d4;
     --chart-2: #737373;
     --chart-3: #525252;
     --chart-4: #404040;
     --chart-5: #262626;
-    --sidebar: #262626;
+    --sidebar: #171717;
     --sidebar-foreground: #fafafa;
-    --sidebar-primary: #db5224;
-    --sidebar-primary-foreground: #fafafa;
-    --sidebar-accent: #404040;
+    --sidebar-primary: #fafafa;
+    --sidebar-primary-foreground: #171717;
+    --sidebar-accent: #262626;
     --sidebar-accent-foreground: #fafafa;
-    --sidebar-border: rgba(255, 255, 255, 0.1);
+    --sidebar-border: #404040;
     --sidebar-ring: #737373;
 }
 

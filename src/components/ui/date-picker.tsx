@@ -127,12 +127,12 @@ export function DatePicker({ value, onChange, placeholder = 'Set due date', clas
                 <span className="text-xl font-black text-accent-600 dark:text-accent-400 hover:opacity-75 transition-opacity">
                   {format(parseISO(value), 'MMM d')}
                 </span>
-                <span className="text-sm font-bold text-slate-300 dark:text-slate-700">
+                <span className="text-sm font-bold text-slate-300 dark:text-neutral-700">
                   '{format(parseISO(value), 'yy')}
                 </span>
               </>
             ) : (
-              <span className="text-xl font-black text-slate-200 dark:text-slate-700 hover:text-slate-300 dark:hover:text-slate-600 transition-colors">
+              <span className="text-xl font-black text-slate-200 dark:text-neutral-700 hover:text-slate-300 dark:hover:text-neutral-600 transition-colors">
                 —
               </span>
             )}
@@ -141,7 +141,7 @@ export function DatePicker({ value, onChange, placeholder = 'Set due date', clas
             <button
               type="button"
               onClick={e => { e.stopPropagation(); onChange(''); }}
-              className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-300 hover:text-slate-500 dark:hover:text-slate-300"
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-300 hover:text-slate-500 dark:hover:text-neutral-300"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -157,10 +157,10 @@ export function DatePicker({ value, onChange, placeholder = 'Set due date', clas
             onKeyDown={e => { if (e.key === 'Enter') e.currentTarget.blur(); }}
             placeholder={placeholder || 'MM/DD/YYYY'}
             className={cn(
-              'w-full h-9 pl-3 rounded-lg border text-sm bg-white dark:bg-slate-900 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 dark:focus:border-accent-600 placeholder:text-slate-400 dark:placeholder:text-slate-500',
+              'w-full h-9 pl-3 rounded-lg border text-sm bg-white dark:bg-neutral-900 transition-colors focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-400 dark:focus:border-accent-600 placeholder:text-slate-400 dark:placeholder:text-neutral-500',
               value
-                ? 'border-accent-300 dark:border-accent-700 text-slate-700 dark:text-slate-300'
-                : 'border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100',
+                ? 'border-accent-300 dark:border-accent-700 text-slate-700 dark:text-neutral-300'
+                : 'border-slate-200 dark:border-neutral-700 text-slate-900 dark:text-neutral-100',
               value ? 'pr-16' : 'pr-9'
             )}
           />
@@ -168,7 +168,7 @@ export function DatePicker({ value, onChange, placeholder = 'Set due date', clas
             <button
               type="button"
               onClick={() => { onChange(''); setInputText(''); }}
-              className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 dark:hover:text-slate-300 transition-colors"
+              className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 dark:hover:text-neutral-300 transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -199,7 +199,7 @@ export function DatePicker({ value, onChange, placeholder = 'Set due date', clas
                   'flex-1 text-[11px] font-bold py-1 rounded-lg border transition-colors',
                   active
                     ? 'bg-accent-600 dark:bg-accent-500 text-white border-accent-600 dark:border-accent-500'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-accent-300 dark:hover:border-accent-700 hover:text-accent-600 dark:hover:text-accent-400'
+                    : 'border-slate-200 dark:border-neutral-700 text-slate-500 dark:text-neutral-400 hover:border-accent-300 dark:hover:border-accent-700 hover:text-accent-600 dark:hover:text-accent-400'
                 )}
               >
                 {label}
@@ -214,7 +214,7 @@ export function DatePicker({ value, onChange, placeholder = 'Set due date', clas
         <div
           ref={popoverRef}
           style={style}
-          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl p-2.5 animate-in fade-in zoom-in-95 duration-150 origin-top"
+          className="bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-700 rounded-xl shadow-2xl p-2.5 animate-in fade-in zoom-in-95 duration-150 origin-top"
         >
           <DayPicker
             mode="single"
@@ -228,26 +228,26 @@ export function DatePicker({ value, onChange, placeholder = 'Set due date', clas
               months: 'w-full',
               month: 'w-full',
               month_caption: 'flex justify-center relative items-center h-8 mb-1 px-8',
-              caption_label: 'text-xs font-bold text-slate-900 dark:text-slate-100 pointer-events-none select-none',
+              caption_label: 'text-xs font-bold text-slate-900 dark:text-neutral-100 pointer-events-none select-none',
               nav: 'absolute inset-x-0 flex justify-between items-center h-8 z-10',
               button_previous: cn(
                 'h-8 w-8 ml-0.5 rounded-md flex items-center justify-center transition-colors cursor-pointer',
-                'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                'text-slate-400 hover:text-slate-700 dark:hover:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800'
               ),
               button_next: cn(
                 'h-8 w-8 mr-0.5 rounded-md flex items-center justify-center transition-colors cursor-pointer',
-                'text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                'text-slate-400 hover:text-slate-700 dark:hover:text-neutral-200 hover:bg-slate-100 dark:hover:bg-neutral-800'
               ),
               month_grid: 'w-full',
               weekdays: 'grid grid-cols-7 mb-0.5',
-              weekday: 'text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 py-0.5',
+              weekday: 'text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-neutral-500 py-0.5',
               week: 'grid grid-cols-7',
               day: 'flex items-center justify-center p-0.5',
               day_button: cn(
                 'h-7 w-7 rounded-md text-xs font-medium transition-colors',
                 'flex items-center justify-center',
-                'text-slate-700 dark:text-slate-300',
-                'hover:bg-accent-50 dark:hover:bg-accent-950/40 hover:text-accent-700 dark:hover:text-accent-300'
+                'text-slate-700 dark:text-neutral-300',
+                'hover:bg-accent-50 dark:hover:bg-neutral-700/50 hover:text-accent-700 dark:hover:text-accent-300'
               ),
               outside: 'opacity-30',
               disabled: 'opacity-30 cursor-not-allowed',

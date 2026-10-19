@@ -44,6 +44,7 @@ import {
   milestoneKeyCount,
   milestonesMatchPhaseCount,
 } from './lib/milestones';
+import { parsePaletteColor, type PaletteColor } from './lib/palette';
 
 function resolveIsDark(preference: 'light' | 'dark' | 'system'): boolean {
   if (preference === 'dark') return true;
@@ -92,10 +93,9 @@ export default function App() {
     if (legacy === 'dark' || legacy === 'light') return legacy;
     return 'system';
   });
-  const [paletteColor, setPaletteColor] = useState<'orange' | 'blue' | 'red' | 'green' | 'purple'>(() => {
-    const stored = localStorage.getItem('paletteColor') as 'orange' | 'blue' | 'red' | 'green' | 'purple' | null;
-    return stored || 'blue';
-  });
+  const [paletteColor, setPaletteColor] = useState<PaletteColor>(() =>
+    parsePaletteColor(localStorage.getItem('paletteColor'))
+  );
   const [isDark, setIsDark] = useState(() => resolveIsDark(
     (() => {
       const stored = localStorage.getItem('themePreference') as 'light' | 'dark' | 'system' | null;
@@ -120,7 +120,7 @@ export default function App() {
 
   useEffect(() => {
     const headerColorLight = '#ffffff';
-    const headerColorDark = '#0f172a'; // Slate 900
+    const headerColorDark = '#0a0a0a';
 
     const shouldBeDark = user ? isDark : false;
 
@@ -580,7 +580,7 @@ export default function App() {
     }
   };
 
-  const handlePaletteChange = (color: 'orange' | 'blue' | 'red' | 'green' | 'purple') => {
+  const handlePaletteChange = (color: PaletteColor) => {
     setPaletteColor(color);
     localStorage.setItem('paletteColor', color);
   };
@@ -661,6 +661,7 @@ export default function App() {
       settingsOpen={settingsOpen}
       onOpenDashboard={handleOpenDashboard}
       onSignOut={() => signOut(auth)}
+      paletteColor={paletteColor}
     />
   ) : null;
 
@@ -703,16 +704,16 @@ export default function App() {
   );
 
   return (
-    <div className="h-screen bg-slate-50 dark:bg-slate-950 flex flex-col overflow-hidden transition-colors duration-300" data-app-root>
-      <div className="h-safe-top bg-white dark:bg-slate-900 w-full shrink-0 no-print"></div>
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 md:px-8 py-4 flex items-center justify-between z-20 shadow-sm no-print">
+    <div className="h-screen bg-slate-50 dark:bg-neutral-950 flex flex-col overflow-hidden transition-colors duration-300" data-app-root>
+      <div className="h-safe-top bg-white dark:bg-neutral-900 w-full shrink-0 no-print"></div>
+      <header className="bg-white dark:bg-neutral-900 border-b border-slate-200 dark:border-neutral-800 px-4 md:px-8 py-4 flex items-center justify-between z-20 shadow-sm no-print">
         <div className="flex items-center gap-3">
           <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
             <SheetTrigger render={<Button variant="ghost" size="icon" className="md:hidden text-slate-500" />}>
               <Menu className="w-5 h-5" />
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800">
-              <SheetHeader className="p-6 border-b border-slate-100 dark:border-slate-800">
+            <SheetContent side="left" className="p-0 w-80 bg-white dark:bg-neutral-900 border-r border-slate-200 dark:border-neutral-800">
+              <SheetHeader className="p-6 border-b border-slate-100 dark:border-neutral-800">
                 <SheetTitle className="flex items-center gap-2">
                   <CasePlanrLogo className="w-6 h-6" />
                   <span className="font-black tracking-tight">CasePlanr</span>
@@ -729,7 +730,7 @@ export default function App() {
           >
             <CasePlanrLogo className="w-9 h-9 drop-shadow-md hidden md:block" />
             <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white tracking-tight">CasePlanr</h1>
-            <Badge variant="outline" className="hidden sm:inline-flex ml-2 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 font-mono text-[10px]">v1.0.0</Badge>
+            <Badge variant="outline" className="hidden sm:inline-flex ml-2 bg-slate-50 dark:bg-neutral-800 text-slate-500 dark:text-neutral-400 border-slate-200 dark:border-neutral-700 font-mono text-[10px]">v1.0.0</Badge>
           </button>
         </div>
 
@@ -739,19 +740,19 @@ export default function App() {
             size="icon"
             aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
             onClick={() => handleThemeChange(isDark ? 'light' : 'dark')}
-            className="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full"
+            className="text-slate-500 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full"
           >
             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </Button>
-          <div className="hidden md:block h-8 w-[1px] bg-slate-200 dark:bg-slate-800"></div>
+          <div className="hidden md:block h-8 w-[1px] bg-slate-200 dark:bg-neutral-800"></div>
           <button
             type="button"
             onClick={handleOpenDashboard}
-            className="hidden md:flex flex-col items-end rounded-xl px-2 py-1 text-right transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+            className="hidden md:flex flex-col items-end rounded-xl px-2 py-1 text-right transition-colors hover:bg-slate-100 dark:hover:bg-neutral-800"
             title="Open dashboard"
           >
-            <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{user.displayName}</span>
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">{userTitle}</span>
+            <span className="text-sm font-bold text-slate-800 dark:text-neutral-200">{user.displayName}</span>
+            <span className="text-[11px] text-slate-400 dark:text-neutral-500 uppercase tracking-wider font-semibold">{userTitle}</span>
           </button>
           <Button
             variant="ghost"
@@ -759,8 +760,8 @@ export default function App() {
             aria-label={settingsOpen ? 'Close settings' : 'Open settings'}
             onClick={() => settingsOpen ? handleCloseSettings() : (() => { setSettingsOpen(true); setShowDashboard(false); setSelectedParticipantId(null); setSidebarCollapsed(true); })()}
             className={cn(
-              "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full",
-              settingsOpen && "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
+              "text-slate-500 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-800 rounded-full",
+              settingsOpen && "bg-slate-100 dark:bg-neutral-800 text-slate-900 dark:text-white"
             )}
             title="Settings"
           >
@@ -771,7 +772,7 @@ export default function App() {
 
       <div className="flex-1 flex overflow-hidden relative" data-app-layout>
         <aside className={cn(
-          "hidden md:flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-sm z-10 overflow-hidden transition-[width] duration-300 no-print",
+          "hidden md:flex flex-col bg-white dark:bg-neutral-900 border-r border-slate-200 dark:border-neutral-800 shadow-sm z-10 overflow-hidden transition-[width] duration-300 no-print",
           sidebarCollapsed ? "md:w-0 md:border-r-0" : "md:w-80"
         )}>
           {sidebar}
@@ -790,7 +791,7 @@ export default function App() {
           </button>
         </div>
 
-        <section className="flex-1 bg-slate-50 dark:bg-slate-950 overflow-y-auto custom-scrollbar transition-colors duration-300" data-main-scroll>
+        <section className="flex-1 bg-slate-50 dark:bg-neutral-950 overflow-y-auto custom-scrollbar transition-colors duration-300" data-main-scroll>
           {settingsOpen ? (
             <UserSettings
               onClose={handleCloseSettings}
@@ -865,7 +866,7 @@ export default function App() {
             <Button
               variant="ghost"
               onClick={() => setIsDeleting(false)}
-              className="flex-1 font-bold text-slate-500 dark:text-slate-400"
+              className="flex-1 font-bold text-slate-500 dark:text-neutral-400"
             >
               Cancel
             </Button>
