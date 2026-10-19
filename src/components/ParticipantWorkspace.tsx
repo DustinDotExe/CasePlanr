@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Dialog, DialogContent, DialogTitle } from './ui/dialog';
 import { DatePicker } from './ui/date-picker';
 import { Hash, Pencil, Check, X, Trash2, User as UserIcon, CalendarDays, LayoutDashboard, Target, FileText, History, Link2 } from 'lucide-react';
-import { CurrentUser, MilestonePhase, Participant, ParticipantPortal, Signature, StoredTemplateCategory } from '../types';
+import { CurrentUser, MilestonePhase, Participant, ParticipantPortal, Signature, StoredGoalBatch, StoredTemplateCategory } from '../types';
 import CasePlanEditor from './CasePlanEditor';
 import AIGoalRefiner from './AIGoalRefiner';
 import CourtReport from './CourtReport';
@@ -20,6 +20,7 @@ interface ParticipantWorkspaceProps {
   userTitle: string;
   milestonePhases: MilestonePhase[];
   goalTemplates: StoredTemplateCategory[];
+  goalBatches: StoredGoalBatch[];
   portalDoc: ParticipantPortal | null;
   activeTab: string;
   onActiveTabChange: (value: string) => void;
@@ -49,6 +50,7 @@ export default function ParticipantWorkspace({
   userTitle,
   milestonePhases,
   goalTemplates,
+  goalBatches,
   portalDoc,
   activeTab,
   onActiveTabChange,
@@ -210,7 +212,7 @@ export default function ParticipantWorkspace({
         </TabsContent>
 
         <TabsContent value="ai" className="mt-6 outline-none">
-          <AIGoalRefiner participant={selectedParticipant} currentUser={currentUser} goalTemplates={goalTemplates} />
+          <AIGoalRefiner participant={selectedParticipant} currentUser={currentUser} goalTemplates={goalTemplates} goalBatches={goalBatches} />
         </TabsContent>
 
         <TabsContent value="report" className="mt-6 outline-none space-y-6">

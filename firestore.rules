@@ -27,6 +27,8 @@ service cloud.firestore {
     //   updatedAt: timestamp (required)
     //
     // users may also store milestonePhases: list<{label: string}> (1-10 entries)
+    //   goalTemplates: list of template categories
+    //   goalBatches: list<{id: string, label: string, goals: list<string>}>
     //
     // Collection: auditLog/{logId}
     //   Append-only from clients. Updates/deletes require Admin SDK.
