@@ -7,10 +7,11 @@ import { logAuditEvent } from '../services/auditService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Wand2, Plus, Trash2, CheckCircle, Loader2, Pencil, Check, X, BookOpen, ChevronDown, ChevronUp, Pill, Briefcase, Home, Users, Brain, Scale, Heart, DollarSign, Activity, GripVertical, CalendarDays, CalendarCheck } from 'lucide-react';
+import { Wand2, Plus, Trash2, CheckCircle, Loader2, Pencil, Check, X, BookOpen, ChevronDown, ChevronUp, Pill, Briefcase, Home, Users, Brain, Scale, Heart, DollarSign, Activity, GripVertical, CalendarDays, CalendarCheck, Layers } from 'lucide-react';
 import { DatePicker } from './ui/date-picker';
 import { refineGoalStream } from '../services/geminiService';
 import { formatGoalDate, isDueSoon, isOverdue } from '../lib/dates';
+import { GOAL_BATCHES, buildGoalEntries } from '../lib/goalBatches';
 
 interface GoalTemplate {
   label: string;
@@ -213,8 +214,10 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
   const [editingGoalValue, setEditingGoalValue] = useState('');
   const [editingGoalDueDate, setEditingGoalDueDate] = useState('');
-  const [pendingGoalText, setPendingGoalText] = useState<string | null>(null);
+  const [pendingGoals, setPendingGoals] = useState<string[] | null>(null);
+  const [pendingSource, setPendingSource] = useState<'draft' | 'batch'>('draft');
   const [pendingDueDate, setPendingDueDate] = useState('');
+  const [savingGoals, setSavingGoals] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [activeDomain, setActiveDomain] = useState<string | null>(null);
   const templatesRef = useRef<HTMLDivElement>(null);
@@ -245,37 +248,47 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
     }
   };
 
-  const handleAddGoal = () => {
-    if (!refinedGoal) return;
-    setPendingGoalText(refinedGoal);
+  const openGoalConfirm = (texts: string[], source: 'draft' | 'batch') => {
+    const goals = texts.map(t => t.trim()).filter(Boolean);
+    if (goals.length === 0) return;
+    setPendingSource(source);
+    setPendingDueDate('');
+    setPendingGoals(goals);
   };
 
-  const commitAddGoal = async () => {
-    if (!pendingGoalText) return;
-    const entry: GoalEntry = {
-      id: crypto.randomUUID(),
-      text: pendingGoalText,
-      ...(pendingDueDate ? { dueDate: pendingDueDate } : {}),
-    };
+  const handleAddGoal = () => {
+    if (!refinedGoal) return;
+    openGoalConfirm([refinedGoal], 'draft');
+  };
+
+  const commitAddGoals = async () => {
+    if (!pendingGoals?.length || savingGoals) return;
+    const fromDraft = pendingSource === 'draft';
+    const entries = buildGoalEntries(pendingGoals, pendingDueDate);
+    setSavingGoals(true);
     try {
       await updateDoc(doc(db, 'participants', participant.id), {
-        goals: [...participant.goals, entry],
+        goals: [...participant.goals, ...entries],
         updatedAt: serverTimestamp()
       });
-      logAuditEvent({
+      await Promise.all(entries.map(entry => logAuditEvent({
         participantId: participant.id,
         caseManagerUid: participant.uid,
         category: 'goal_added',
         description: 'Goal Added',
         details: { newValue: entry.text.length > 120 ? entry.text.slice(0, 120) + '…' : entry.text },
         currentUser
-      });
-      setPendingGoalText(null);
+      })));
+      setPendingGoals(null);
       setPendingDueDate('');
-      setRoughNotes('');
-      setRefinedGoal('');
+      if (fromDraft) {
+        setRoughNotes('');
+        setRefinedGoal('');
+      }
     } catch (err) {
       console.error("Add Goal Error:", err);
+    } finally {
+      setSavingGoals(false);
     }
   };
 
@@ -425,6 +438,34 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
                     </button>
                   ))}
                 </div>
+                <div className="mt-3 pt-3 border-t border-accent-100 dark:border-accent-900/40">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-600 dark:text-accent-400 mb-1 flex items-center gap-1.5">
+                    <Layers className="w-3 h-3" />
+                    Preselected batches
+                  </p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2 leading-relaxed">
+                    Adds every goal in the set at once. You set one due date for the group.
+                  </p>
+                  <div className="space-y-1.5">
+                    {GOAL_BATCHES.map(batch => (
+                      <button
+                        key={batch.id}
+                        type="button"
+                        onClick={() => {
+                          openGoalConfirm(batch.goals, 'batch');
+                          setShowTemplates(false);
+                        }}
+                        className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-accent-300 dark:hover:border-accent-700 hover:bg-accent-50 dark:hover:bg-accent-950/30 transition-all leading-relaxed"
+                      >
+                        <span className="flex items-center justify-between gap-2 mb-0.5">
+                          <span className="font-bold text-slate-900 dark:text-slate-100">{batch.label}</span>
+                          <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-accent-600 dark:text-accent-400">{batch.goals.length} goals</span>
+                        </span>
+                        <span className="block text-slate-500 dark:text-slate-400 line-clamp-2">{batch.goals[0]}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
             <Textarea
@@ -435,7 +476,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
             />
             <div className="flex flex-col gap-2">
               <Button
-                onClick={() => { if (roughNotes.trim()) setPendingGoalText(roughNotes.trim()); }}
+                onClick={() => { if (roughNotes.trim()) openGoalConfirm([roughNotes.trim()], 'draft'); }}
                 disabled={loading || !roughNotes.trim()}
                 className="w-full bg-accent-600 dark:bg-accent-500 hover:bg-accent-700 dark:hover:bg-accent-600 text-white"
               >
@@ -623,17 +664,39 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
       </Card>
     </div>
 
-    {pendingGoalText && (
+    {pendingGoals && pendingGoals.length > 0 && (
       <div className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200">
-        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-200 p-6 space-y-5">
+        <div className={`${pendingGoals.length > 1 ? 'max-w-lg' : 'max-w-md'} w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-200 p-6 space-y-5`}>
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">Set a Due Date</h3>
-            <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">Optional — you can always update this later.</p>
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+              {pendingGoals.length > 1 ? `Add ${pendingGoals.length} goals` : 'Set a Due Date'}
+            </h3>
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">
+              {pendingGoals.length > 1
+                ? 'One due date applies to every goal in this batch. You can change each one later.'
+                : 'Optional — you can always update this later.'}
+            </p>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2.5 border border-slate-100 dark:border-slate-700">
-            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">{pendingGoalText}</p>
-          </div>
+          {pendingGoals.length > 1 ? (
+            <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              {pendingGoals.map((text, i) => (
+                <div key={i} className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2.5 border border-slate-100 dark:border-slate-700">
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{text}</p>
+                  {pendingDueDate && (
+                    <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                      <CalendarDays className="w-3 h-3 shrink-0" />
+                      Due: {formatGoalDate(pendingDueDate)}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2.5 border border-slate-100 dark:border-slate-700">
+              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">{pendingGoals[0]}</p>
+            </div>
+          )}
 
           <DatePicker
             value={pendingDueDate}
@@ -645,17 +708,19 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates 
           <div className="flex gap-3 pt-1">
             <Button
               variant="ghost"
-              onClick={() => { setPendingGoalText(null); setPendingDueDate(''); }}
+              onClick={() => { setPendingGoals(null); setPendingDueDate(''); }}
+              disabled={savingGoals}
               className="flex-1 text-slate-500 dark:text-slate-400"
             >
               Cancel
             </Button>
             <Button
-              onClick={commitAddGoal}
+              onClick={commitAddGoals}
+              disabled={savingGoals}
               className="flex-1 bg-accent-600 hover:bg-accent-700 dark:bg-accent-500 dark:hover:bg-accent-600 text-white font-bold"
             >
-              <Plus className="w-4 h-4" />
-              Add to Case Plan
+              {savingGoals ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+              {pendingGoals.length > 1 ? `Add ${pendingGoals.length} Goals` : 'Add to Case Plan'}
             </Button>
           </div>
         </div>
