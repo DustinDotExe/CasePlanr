@@ -3,8 +3,9 @@ import { describe, it } from 'node:test';
 import { GOAL_BATCHES, MAX_GOALS_PER_BATCH, buildGoalEntries, sanitizeGoalBatches } from './goalBatches';
 
 describe('GOAL_BATCHES', () => {
-  it('includes the SSC treatment phase set as four finished goals', () => {
-    const batch = GOAL_BATCHES.find((b) => b.id === 'ssc-treatment');
+  it('includes the PSC Defaults set as four finished goals', () => {
+    const batch = GOAL_BATCHES.find((b) => b.id === 'psc-defaults');
+    assert.equal(batch?.label, 'PSC Defaults');
     assert.ok(batch);
     assert.equal(batch.goals.length, 4);
     assert.equal(

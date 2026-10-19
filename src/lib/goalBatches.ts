@@ -7,12 +7,12 @@ export const MAX_GOALS_PER_BATCH = 20;
 
 /**
  * Finished goal text, added as-is to Active SMART Goals.
- * The SSC set matches the standard treatment-phase starter.
+ * PSC Defaults is the standard treatment-phase starter.
  */
 export const GOAL_BATCHES: StoredGoalBatch[] = [
   {
-    id: 'ssc-treatment',
-    label: 'SSC Treatment Phase',
+    id: 'psc-defaults',
+    label: 'PSC Defaults',
     goals: [
       'Successfully complete all scheduled sessions of the SSC treatment program for the duration of the program phase.',
       'The participant will attend a minimum of three self-help meetings or other qualifying prosocial events per week throughout the current program phase.',
