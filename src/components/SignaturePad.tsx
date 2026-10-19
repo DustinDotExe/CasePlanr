@@ -182,16 +182,16 @@ export default function SignaturePad({ onSign, disabled, defaultName = '' }: Sig
           {localError}
         </div>
       )}
-      <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 w-fit">
+      <div className="flex gap-1 bg-slate-100 dark:bg-neutral-800 rounded-lg p-0.5 w-fit">
         <button
           onClick={() => setMode('typed')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${mode === 'typed' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${mode === 'typed' ? 'bg-white dark:bg-neutral-700 text-slate-800 dark:text-neutral-200 shadow-sm' : 'text-slate-500 dark:text-neutral-400'}`}
         >
           <Type className="w-3 h-3" /> Type
         </button>
         <button
           onClick={() => setMode('drawn')}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${mode === 'drawn' ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm' : 'text-slate-500 dark:text-slate-400'}`}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${mode === 'drawn' ? 'bg-white dark:bg-neutral-700 text-slate-800 dark:text-neutral-200 shadow-sm' : 'text-slate-500 dark:text-neutral-400'}`}
         >
           <PenLine className="w-3 h-3" /> Draw
         </button>
@@ -201,18 +201,18 @@ export default function SignaturePad({ onSign, disabled, defaultName = '' }: Sig
         <div className="relative">
           <canvas
             ref={canvasRef}
-            className="w-full border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-white dark:bg-slate-950 cursor-crosshair touch-none"
+            className="w-full border-2 border-dashed border-slate-300 dark:border-neutral-600 rounded-xl bg-white dark:bg-neutral-950 cursor-crosshair touch-none"
             style={{ height: '150px', display: 'block' }}
           />
           {!hasDrawn && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-slate-300 dark:text-slate-700 text-sm font-medium select-none">Sign here</span>
+              <span className="text-slate-300 dark:text-neutral-700 text-sm font-medium select-none">Sign here</span>
             </div>
           )}
           {hasDrawn && (
             <button
               onClick={initCanvas}
-              className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:text-slate-600 dark:hover:text-slate-400 transition-colors"
+              className="absolute top-2 right-2 text-slate-400 hover:text-slate-600 dark:text-neutral-600 dark:hover:text-neutral-400 transition-colors"
               title="Clear signature"
             >
               <Trash2 className="w-4 h-4" />
@@ -225,10 +225,10 @@ export default function SignaturePad({ onSign, disabled, defaultName = '' }: Sig
             value={typedName}
             onChange={e => setTypedName(e.target.value)}
             placeholder="Type your full name"
-            className="signature-script text-[2rem]! h-14 bg-white dark:bg-slate-950 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl text-center"
+            className="signature-script text-[2rem]! h-14 bg-white dark:bg-neutral-950 border-2 border-dashed border-slate-300 dark:border-neutral-600 rounded-xl text-center"
             disabled={disabled}
           />
-          <p className="text-[11px] text-slate-400 dark:text-slate-500">By typing your name, you are providing a digital signature.</p>
+          <p className="text-[11px] text-slate-400 dark:text-neutral-500">By typing your name, you are providing a digital signature.</p>
         </div>
       )}
 

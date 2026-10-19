@@ -11,9 +11,11 @@ import { streamGemini } from './shared/geminiStream';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 // CSP disabled: index.html uses an inline theme bootstrap script.
+// same-origin-allow-popups: required for Firebase signInWithPopup (Google sign-in).
 app.use(helmet({
   contentSecurityPolicy: false,
   referrerPolicy: { policy: 'no-referrer' },
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
 }));
 app.use(express.json());
 

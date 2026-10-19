@@ -367,14 +367,14 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
     <>
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-6">
-        <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+        <Card className="bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div>
-                <CardTitle className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                <CardTitle className="text-lg font-bold flex items-center gap-2 text-slate-900 dark:text-neutral-100">
                   Generate <span className="hidden sm:inline">SMART </span>Goals
                 </CardTitle>
-                <CardDescription className="text-slate-500 dark:text-slate-400 mt-1">Create your own or transform rough notes into SMART goals.</CardDescription>
+                <CardDescription className="text-slate-500 dark:text-neutral-400 mt-1">Create your own or transform rough notes into SMART goals.</CardDescription>
               </div>
               <Button
                 variant="outline"
@@ -394,7 +394,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                     }, 50);
                   }
                 }}
-                className="shrink-0 text-accent-600 dark:text-accent-400 border-accent-200 dark:border-accent-800 hover:bg-accent-50 dark:hover:bg-accent-950/30 gap-1.5"
+                className="shrink-0 text-accent-600 dark:text-accent-400 border-accent-200 dark:border-neutral-700 hover:bg-accent-50 dark:hover:bg-neutral-800/60 gap-1.5"
               >
                 <BookOpen className="w-3.5 h-3.5" />
                 Templates
@@ -404,7 +404,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
           </CardHeader>
           <CardContent className="space-y-4">
             {showTemplates && (
-              <div ref={templatesRef} className="rounded-xl border border-accent-100 dark:border-accent-900/50 bg-accent-50/50 dark:bg-accent-950/20 p-3 animate-in slide-in-from-top-2 duration-200">
+              <div ref={templatesRef} className="rounded-xl border border-accent-100 dark:border-neutral-700/60 bg-accent-50/50 dark:bg-neutral-800/40 p-3 animate-in slide-in-from-top-2 duration-200">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-600 dark:text-accent-400 mb-3">
                   Select a template to pre-fill your notes
                 </p>
@@ -416,7 +416,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                       className={`flex flex-col items-center gap-1 px-2 py-2.5 rounded-xl border text-center transition-all shadow-sm ${
                         currentDomain === cat.domain
                           ? 'bg-accent-600 text-white border-accent-600 dark:bg-accent-500 dark:border-accent-500'
-                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:border-accent-300 dark:hover:border-accent-700 hover:text-accent-600 dark:hover:text-accent-400'
+                          : 'bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-700 text-slate-500 dark:text-neutral-400 hover:border-accent-300 dark:hover:border-accent-700 hover:text-accent-600 dark:hover:text-accent-400'
                       }`}
                     >
                       <cat.Icon className="w-3.5 h-3.5 shrink-0" />
@@ -432,19 +432,19 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                         setRoughNotes(t.notes);
                         setShowTemplates(false);
                       }}
-                      className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-accent-300 dark:hover:border-accent-700 hover:bg-accent-50 dark:hover:bg-accent-950/30 transition-all leading-relaxed"
+                      className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-slate-100 dark:border-neutral-800 hover:border-accent-300 dark:hover:border-accent-700 hover:bg-accent-50 dark:hover:bg-neutral-800/60 transition-all leading-relaxed"
                     >
-                      <span className="font-bold text-slate-900 dark:text-slate-100 block mb-0.5">{t.label}</span>
+                      <span className="font-bold text-slate-900 dark:text-neutral-100 block mb-0.5">{t.label}</span>
                       {t.notes}
                     </button>
                   ))}
                 </div>
-                {effectiveBatches.length > 0 && <div className="mt-3 pt-3 border-t border-accent-100 dark:border-accent-900/40">
+                {effectiveBatches.length > 0 && <div className="mt-3 pt-3 border-t border-accent-100 dark:border-neutral-700/60">
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-accent-600 dark:text-accent-400 mb-1 flex items-center gap-1.5">
                     <Layers className="w-3 h-3" />
                     Preselected batches
                   </p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2 leading-relaxed">
+                  <p className="text-[11px] text-slate-500 dark:text-neutral-400 mb-2 leading-relaxed">
                     Adds every goal in the set at once. You set one due date for the group.
                   </p>
                   <div className="space-y-1.5">
@@ -456,13 +456,13 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                           openGoalConfirm(batch.goals, 'batch');
                           setShowTemplates(false);
                         }}
-                        className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-accent-300 dark:hover:border-accent-700 hover:bg-accent-50 dark:hover:bg-accent-950/30 transition-all leading-relaxed"
+                        className="w-full text-left px-3 py-2 rounded-lg text-xs text-slate-700 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-slate-100 dark:border-neutral-800 hover:border-accent-300 dark:hover:border-accent-700 hover:bg-accent-50 dark:hover:bg-neutral-800/60 transition-all leading-relaxed"
                       >
                         <span className="flex items-center justify-between gap-2 mb-0.5">
-                          <span className="font-bold text-slate-900 dark:text-slate-100">{batch.label}</span>
+                          <span className="font-bold text-slate-900 dark:text-neutral-100">{batch.label}</span>
                           <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-accent-600 dark:text-accent-400">{batch.goals.length} goals</span>
                         </span>
-                        <span className="block text-slate-500 dark:text-slate-400 line-clamp-2">{batch.goals[0]}</span>
+                        <span className="block text-slate-500 dark:text-neutral-400 line-clamp-2">{batch.goals[0]}</span>
                       </button>
                     ))}
                   </div>
@@ -473,7 +473,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
               value={roughNotes}
               onChange={(e) => setRoughNotes(e.target.value)}
               placeholder="e.g., Participant needs to find a job and attend 3 meetings a week for the next month."
-              className="min-h-[120px] border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200"
+              className="min-h-[120px] border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-slate-800 dark:text-neutral-200"
             />
             <div className="flex flex-col gap-2">
               <Button
@@ -504,21 +504,21 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
             </div>
 
             {(loading || refinedGoal) && (
-              <div className="mt-6 p-4 bg-accent-50 dark:bg-accent-900/20 rounded-lg border border-accent-100 dark:border-accent-900/50 animate-in fade-in slide-in-from-top-2">
+              <div className="mt-6 p-4 bg-accent-50 dark:bg-neutral-800/40 rounded-lg border border-accent-100 dark:border-neutral-700/60 animate-in fade-in slide-in-from-top-2">
                 <h4 className="text-xs font-bold text-accent-600 dark:text-accent-400 uppercase mb-3">Refined SMART Goal</h4>
                 {loading && !refinedGoal ? (
                   <div className="space-y-2 animate-pulse py-1">
-                    <div className="h-2.5 bg-accent-200 dark:bg-accent-900/60 rounded-full w-full" />
-                    <div className="h-2.5 bg-accent-200 dark:bg-accent-900/60 rounded-full w-5/6" />
-                    <div className="h-2.5 bg-accent-200 dark:bg-accent-900/60 rounded-full w-4/6" />
-                    <div className="h-2.5 bg-accent-200 dark:bg-accent-900/60 rounded-full w-3/4" />
+                    <div className="h-2.5 bg-accent-200 dark:bg-neutral-700/50 rounded-full w-full" />
+                    <div className="h-2.5 bg-accent-200 dark:bg-neutral-700/50 rounded-full w-5/6" />
+                    <div className="h-2.5 bg-accent-200 dark:bg-neutral-700/50 rounded-full w-4/6" />
+                    <div className="h-2.5 bg-accent-200 dark:bg-neutral-700/50 rounded-full w-3/4" />
                   </div>
                 ) : (
                   <>
                     <Textarea
                       value={refinedGoal}
                       onChange={(e) => setRefinedGoal(e.target.value)}
-                      className="text-slate-700 dark:text-slate-300 italic bg-white dark:bg-slate-900 border-accent-100 dark:border-accent-900/50 focus-visible:ring-accent-500 min-h-[100px]"
+                      className="text-slate-700 dark:text-neutral-300 italic bg-white dark:bg-neutral-900 border-accent-100 dark:border-neutral-700/60 focus-visible:ring-accent-500 min-h-[100px]"
                     />
                     <Button
                       size="sm"
@@ -536,15 +536,15 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
         </Card>
       </div>
 
-      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+      <Card className="bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800">
         <CardHeader>
-          <CardTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">Active <span className="hidden sm:inline">SMART </span>Goals</CardTitle>
-          <CardDescription className="text-slate-500 dark:text-slate-400">Current objectives for this participant.</CardDescription>
+          <CardTitle className="text-lg font-bold text-slate-900 dark:text-neutral-100">Active <span className="hidden sm:inline">SMART </span>Goals</CardTitle>
+          <CardDescription className="text-slate-500 dark:text-neutral-400">Current objectives for this participant.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="pr-4">
             {participant.goals.length === 0 ? (
-              <div className="text-center py-12 text-slate-400 dark:text-slate-600">
+              <div className="text-center py-12 text-slate-400 dark:text-neutral-600">
                 <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-20" />
                 <p className="text-sm">No goals set yet.</p>
               </div>
@@ -559,14 +559,14 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                             <div
                               ref={drag.innerRef}
                               {...drag.draggableProps}
-                              className={`p-4 bg-white dark:bg-slate-950 border rounded-lg shadow-sm flex flex-col gap-4 group transition-shadow ${snapshot.isDragging ? 'border-accent-300 dark:border-accent-700 shadow-lg' : 'border-slate-100 dark:border-slate-800'}`}
+                              className={`p-4 bg-white dark:bg-neutral-950 border rounded-lg shadow-sm flex flex-col gap-4 group transition-shadow ${snapshot.isDragging ? 'border-accent-300 dark:border-accent-700 shadow-lg' : 'border-slate-100 dark:border-neutral-800'}`}
                             >
                               {editingGoalId === goal.id ? (
                                 <div className="space-y-3">
                                   <Textarea
                                     value={editingGoalValue}
                                     onChange={(e) => setEditingGoalValue(e.target.value)}
-                                    className="min-h-[100px] text-sm text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-900 border-accent-200 dark:border-accent-800 focus-visible:ring-accent-500"
+                                    className="min-h-[100px] text-sm text-slate-700 dark:text-neutral-300 bg-white dark:bg-neutral-900 border-accent-200 dark:border-neutral-700 focus-visible:ring-accent-500"
                                     autoFocus
                                   />
                                   <div className="space-y-1">
@@ -585,7 +585,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                                       size="sm"
                                       variant="ghost"
                                       onClick={() => setEditingGoalId(null)}
-                                      className="text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                      className="text-slate-500 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-800"
                                     >
                                       <X className="w-4 h-4" />
                                       Cancel
@@ -602,15 +602,15 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                                 </div>
                               ) : (
                                 <div className="flex items-start gap-2">
-                                  <div {...drag.dragHandleProps} className="cursor-grab active:cursor-grabbing text-slate-300 dark:text-slate-600 hover:text-slate-400 dark:hover:text-slate-500 shrink-0 self-center">
+                                  <div {...drag.dragHandleProps} className="cursor-grab active:cursor-grabbing text-slate-300 dark:text-neutral-600 hover:text-slate-400 dark:hover:text-neutral-500 shrink-0 self-center">
                                     <GripVertical className="w-4 h-4" />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">{goal.text}</p>
+                                    <p className="text-sm text-slate-700 dark:text-neutral-300 leading-relaxed">{goal.text}</p>
                                     {(goal.dueDate || goal.reviewedOn) && (
                                       <div className="flex flex-wrap items-center gap-3 mt-1.5">
                                         {goal.dueDate && (
-                                          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold ${isOverdue(goal.dueDate) ? 'text-red-500 dark:text-red-400' : isDueSoon(goal.dueDate) ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                                          <span className={`inline-flex items-center gap-1 text-[10px] font-semibold ${isOverdue(goal.dueDate) ? 'text-red-500 dark:text-red-400' : isDueSoon(goal.dueDate) ? 'text-amber-600 dark:text-amber-400' : 'text-slate-400 dark:text-neutral-500'}`}>
                                             <CalendarDays className="w-3 h-3 shrink-0" />
                                             Due: {formatGoalDate(goal.dueDate)}
                                             {isOverdue(goal.dueDate) && (
@@ -622,7 +622,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                                           </span>
                                         )}
                                         {goal.reviewedOn && (
-                                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-neutral-500">
                                             <CalendarCheck className="w-3 h-3 shrink-0" />
                                             Reviewed: {formatGoalDate(goal.reviewedOn)}
                                           </span>
@@ -635,7 +635,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => startEditingGoal(goal)}
-                                      className="h-8 w-8 text-slate-300 dark:text-slate-600 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/30"
+                                      className="h-8 w-8 text-slate-300 dark:text-neutral-600 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/60"
                                     >
                                       <Pencil className="w-4 h-4" />
                                     </Button>
@@ -643,7 +643,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
                                       variant="ghost"
                                       size="icon"
                                       onClick={() => handleDeleteGoal(goal.id)}
-                                      className="h-8 w-8 text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                      className="h-8 w-8 text-slate-300 dark:text-neutral-600 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30"
                                     >
                                       <Trash2 className="w-4 h-4" />
                                     </Button>
@@ -667,12 +667,12 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
 
     {pendingGoals && pendingGoals.length > 0 && (
       <div className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-in fade-in duration-200">
-        <div className={`${pendingGoals.length > 1 ? 'max-w-lg' : 'max-w-md'} w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl animate-in zoom-in-95 duration-200 p-6 space-y-5`}>
+        <div className={`${pendingGoals.length > 1 ? 'max-w-lg' : 'max-w-md'} w-full bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-2xl animate-in zoom-in-95 duration-200 p-6 space-y-5`}>
           <div>
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 tracking-tight">
+            <h3 className="text-base font-bold text-slate-900 dark:text-neutral-100 tracking-tight">
               {pendingGoals.length > 1 ? `Add ${pendingGoals.length} goals` : 'Set a Due Date'}
             </h3>
-            <p className="text-sm text-slate-400 dark:text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-400 dark:text-neutral-500 mt-0.5">
               {pendingGoals.length > 1
                 ? 'One due date applies to every goal in this batch. You can change each one later.'
                 : 'Optional — you can always update this later.'}
@@ -682,10 +682,10 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
           {pendingGoals.length > 1 ? (
             <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
               {pendingGoals.map((text, i) => (
-                <div key={i} className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2.5 border border-slate-100 dark:border-slate-700">
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{text}</p>
+                <div key={i} className="bg-slate-50 dark:bg-neutral-800 rounded-lg px-3 py-2.5 border border-slate-100 dark:border-neutral-700">
+                  <p className="text-xs text-slate-600 dark:text-neutral-300 leading-relaxed">{text}</p>
                   {pendingDueDate && (
-                    <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-slate-500">
+                    <p className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-semibold text-slate-400 dark:text-neutral-500">
                       <CalendarDays className="w-3 h-3 shrink-0" />
                       Due: {formatGoalDate(pendingDueDate)}
                     </p>
@@ -694,8 +694,8 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
               ))}
             </div>
           ) : (
-            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2.5 border border-slate-100 dark:border-slate-700">
-              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3">{pendingGoals[0]}</p>
+            <div className="bg-slate-50 dark:bg-neutral-800 rounded-lg px-3 py-2.5 border border-slate-100 dark:border-neutral-700">
+              <p className="text-xs text-slate-600 dark:text-neutral-300 leading-relaxed line-clamp-3">{pendingGoals[0]}</p>
             </div>
           )}
 
@@ -711,7 +711,7 @@ export default function AIGoalRefiner({ participant, currentUser, goalTemplates,
               variant="ghost"
               onClick={() => { setPendingGoals(null); setPendingDueDate(''); }}
               disabled={savingGoals}
-              className="flex-1 text-slate-500 dark:text-slate-400"
+              className="flex-1 text-slate-500 dark:text-neutral-400"
             >
               Cancel
             </Button>

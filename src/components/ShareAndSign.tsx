@@ -54,7 +54,7 @@ function SignatureBadge({
   removing: boolean;
 }) {
   return (
-    <div className="border border-accent-100 dark:border-accent-900 rounded-xl p-3 space-y-1.5 bg-accent-50/50 dark:bg-accent-950/20">
+    <div className="border border-accent-100 dark:border-neutral-700 rounded-xl p-3 space-y-1.5 bg-accent-50/50 dark:bg-neutral-800/40">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
           <CheckCircle2 className="w-4 h-4 text-accent-600 dark:text-accent-400 shrink-0" />
@@ -66,7 +66,7 @@ function SignatureBadge({
           variant="ghost"
           onClick={onRemove}
           disabled={removing}
-          className="h-7 px-2 shrink-0 text-accent-600 dark:text-accent-400 hover:bg-accent-100/70 dark:hover:bg-accent-950/40 text-xs font-semibold"
+          className="h-7 px-2 shrink-0 text-accent-600 dark:text-accent-400 hover:bg-accent-100/70 dark:hover:bg-neutral-700/50 text-xs font-semibold"
           title={`Remove ${label.toLowerCase()} signature`}
         >
           {removing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
@@ -74,11 +74,11 @@ function SignatureBadge({
         </Button>
       </div>
       {sig.type === 'drawn' && sig.imageData ? (
-        <img src={sig.imageData} alt={`${label} signature`} className="max-h-14 border border-slate-100 dark:border-slate-700 rounded-lg bg-white" />
+        <img src={sig.imageData} alt={`${label} signature`} className="max-h-14 border border-slate-100 dark:border-neutral-700 rounded-lg bg-white" />
       ) : (
-        <p className="signature-script text-2xl text-slate-700 dark:text-slate-300">{sig.name}</p>
+        <p className="signature-script text-2xl text-slate-700 dark:text-neutral-300">{sig.name}</p>
       )}
-      <p className="text-xs text-slate-400 dark:text-slate-500">
+      <p className="text-xs text-slate-400 dark:text-neutral-500">
         {sig.name} &middot; {formatSignedAt(sig.signedAt)}
       </p>
     </div>
@@ -184,15 +184,15 @@ export default function ShareAndSign({
   };
 
   return (
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-      <CardHeader className="border-b border-slate-100 dark:border-slate-800 py-3 px-4">
+    <Card className="bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 shadow-sm">
+      <CardHeader className="border-b border-slate-100 dark:border-neutral-800 py-3 px-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 space-y-1">
-            <CardTitle className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+            <CardTitle className="text-base font-bold text-slate-800 dark:text-neutral-200 flex items-center gap-2">
               <Link2 className="w-4 h-4 text-accent-500 shrink-0" />
               Share & Sign
             </CardTitle>
-            <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+            <CardDescription className="text-xs text-slate-500 dark:text-neutral-400">
               Share a secure link with the participant and collect digital signatures.
             </CardDescription>
           </div>
@@ -202,7 +202,7 @@ export default function ShareAndSign({
               size="icon"
               variant="ghost"
               onClick={onClose}
-              className="h-8 w-8 shrink-0 rounded-full text-accent-600 dark:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/30"
+              className="h-8 w-8 shrink-0 rounded-full text-accent-600 dark:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/60"
               title="Close Share & Sign"
             >
               <X className="w-4 h-4" />
@@ -221,12 +221,12 @@ export default function ShareAndSign({
         {/* Share link section */}
         {!shareToken ? (
           <div className="flex flex-col sm:flex-row sm:items-center py-2 gap-3 text-center sm:text-left">
-            <div className="w-10 h-10 rounded-full bg-accent-50 dark:bg-accent-900/30 flex items-center justify-center shrink-0 mx-auto sm:mx-0">
+            <div className="w-10 h-10 rounded-full bg-accent-50 dark:bg-neutral-800/50 flex items-center justify-center shrink-0 mx-auto sm:mx-0">
               <Link2 className="w-5 h-5 text-accent-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-slate-700 dark:text-slate-300 text-sm">No participant link yet</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+              <p className="font-semibold text-slate-700 dark:text-neutral-300 text-sm">No participant link yet</p>
+              <p className="text-xs text-slate-400 dark:text-neutral-500 mt-0.5">
                 Generate a secure link to share this case plan with {participant.name}.
               </p>
             </div>
@@ -242,14 +242,14 @@ export default function ShareAndSign({
         ) : (
           <div className="space-y-2.5">
             <div className="flex items-center gap-2">
-              <div className="flex-1 min-w-0 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2">
-                <p className="text-xs font-mono text-slate-600 dark:text-slate-300 truncate">{portalUrl}</p>
+              <div className="flex-1 min-w-0 bg-slate-50 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 rounded-lg px-3 py-2">
+                <p className="text-xs font-mono text-slate-600 dark:text-neutral-300 truncate">{portalUrl}</p>
               </div>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={handleCopy}
-                className="shrink-0 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+                className="shrink-0 border-slate-200 dark:border-neutral-700 text-slate-600 dark:text-neutral-300"
                 title="Copy link"
               >
                 {copied ? <CheckCircle2 className="w-4 h-4 text-accent-600 dark:text-accent-400" /> : <Copy className="w-4 h-4" />}
@@ -263,14 +263,14 @@ export default function ShareAndSign({
                   variant="outline"
                   onClick={handleSync}
                   disabled={syncingPortal}
-                  className="text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700 text-xs font-semibold"
+                  className="text-slate-600 dark:text-neutral-300 border-slate-200 dark:border-neutral-700 text-xs font-semibold"
                   title="Sync latest case plan data to the portal"
                 >
                   {syncingPortal ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 mr-1.5" />}
                   Sync
                 </Button>
                 {updatedAt && (
-                  <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
+                  <span className="text-xs text-slate-400 dark:text-neutral-500 flex items-center gap-1">
                     <Clock className="w-3 h-3" /> {updatedAt}
                   </span>
                 )}
@@ -281,19 +281,19 @@ export default function ShareAndSign({
                   size="sm"
                   variant="ghost"
                   onClick={() => setConfirmRevoke(true)}
-                  className="text-accent-600 dark:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/30 text-xs font-semibold"
+                  className="text-accent-600 dark:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/60 text-xs font-semibold"
                 >
                   <Unlink className="w-3.5 h-3.5 mr-1.5" /> Revoke Link
                 </Button>
               ) : (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Revoke this link?</span>
+                  <span className="text-xs text-slate-500 dark:text-neutral-400">Revoke this link?</span>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={handleRevokeLink}
                     disabled={revokingLink}
-                    className="text-accent-600 dark:text-accent-400 border-accent-200 dark:border-accent-900 hover:bg-accent-50 dark:hover:bg-accent-950/30 text-xs font-semibold h-7 px-2"
+                    className="text-accent-600 dark:text-accent-400 border-accent-200 dark:border-neutral-700 hover:bg-accent-50 dark:hover:bg-neutral-800/60 text-xs font-semibold h-7 px-2"
                   >
                     {revokingLink ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Yes, Revoke'}
                   </Button>
@@ -314,10 +314,10 @@ export default function ShareAndSign({
         {/* Signatures section (only shown when a link exists) */}
         {shareToken && (
           <>
-            <div className="border-t border-slate-100 dark:border-slate-800" />
+            <div className="border-t border-slate-100 dark:border-neutral-800" />
 
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Signatures</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-neutral-400 uppercase tracking-wider">Signatures</p>
 
               {/* Case Manager Signature */}
               {portalDoc?.caseManagerSignature ? (
@@ -329,21 +329,21 @@ export default function ShareAndSign({
                 />
               ) : (
                 <div className="space-y-2.5">
-                  <div className="border border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-3 text-center">
-                    <p className="text-xs text-slate-400 dark:text-slate-500">Your signature is pending</p>
+                  <div className="border border-dashed border-slate-200 dark:border-neutral-700 rounded-lg p-3 text-center">
+                    <p className="text-xs text-slate-400 dark:text-neutral-500">Your signature is pending</p>
                   </div>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => setShowSignPad(v => !v)}
-                    className="w-full text-accent-600 dark:text-accent-400 border-accent-200 dark:border-accent-900 hover:bg-accent-50 dark:hover:bg-accent-950/30 font-semibold"
+                    className="w-full text-accent-600 dark:text-accent-400 border-accent-200 dark:border-neutral-700 hover:bg-accent-50 dark:hover:bg-neutral-800/60 font-semibold"
                   >
                     <PenLine className="w-4 h-4 mr-2" />
                     Sign as {userTitle || 'Case Manager'}
                     {showSignPad ? <ChevronUp className="w-4 h-4 ml-auto" /> : <ChevronDown className="w-4 h-4 ml-auto" />}
                   </Button>
                   {showSignPad && (
-                    <div className="border border-slate-200 dark:border-slate-700 rounded-xl p-3 bg-slate-50 dark:bg-slate-800/50">
+                    <div className="border border-slate-200 dark:border-neutral-700 rounded-xl p-3 bg-slate-50 dark:bg-neutral-800/50">
                       <SignaturePad onSign={handleSignAsCaseManager} disabled={signingAsCM} defaultName={caseManagerName} />
                     </div>
                   )}
@@ -359,8 +359,8 @@ export default function ShareAndSign({
                   removing={removingSignature === 'participantSignature'}
                 />
               ) : (
-                <div className="border border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-3 text-center">
-                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                <div className="border border-dashed border-slate-200 dark:border-neutral-700 rounded-lg p-3 text-center">
+                  <p className="text-xs text-slate-400 dark:text-neutral-500">
                     Participant has not yet signed &mdash; they sign via their portal link
                   </p>
                 </div>

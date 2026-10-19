@@ -11,6 +11,7 @@ import { cn } from '../lib/utils';
 import { StoredGoalBatch, StoredTemplateCategory, MilestonePhase, DEFAULT_MILESTONE_PHASES, MAX_MILESTONE_PHASES } from '../types';
 import { DEFAULT_STORED_TEMPLATES } from './AIGoalRefiner';
 import { GOAL_BATCHES, MAX_GOAL_BATCHES, MAX_GOALS_PER_BATCH } from '../lib/goalBatches';
+import { PALETTE_OPTIONS, type PaletteColor } from '../lib/palette';
 
 interface UserSettingsProps {
   onClose: () => void;
@@ -19,8 +20,8 @@ interface UserSettingsProps {
   isDark: boolean;
   onThemeChange: (theme: 'light' | 'dark' | 'system') => void;
   themePreference: 'light' | 'dark' | 'system';
-  paletteColor: 'orange' | 'blue' | 'red' | 'green' | 'purple';
-  onPaletteChange: (color: 'orange' | 'blue' | 'red' | 'green' | 'purple') => void;
+  paletteColor: PaletteColor;
+  onPaletteChange: (color: PaletteColor) => void;
   goalTemplates: StoredTemplateCategory[];
   onGoalTemplatesChange: (templates: StoredTemplateCategory[]) => void;
   goalBatches: StoredGoalBatch[];
@@ -32,14 +33,6 @@ interface UserSettingsProps {
   ) => void;
 }
 
-const PALETTES: { value: 'orange' | 'blue' | 'red' | 'green' | 'purple'; label: string; swatch: string }[] = [
-  { value: 'orange', label: 'Orange', swatch: '#ea580c' },
-  { value: 'blue',   label: 'Blue',   swatch: '#2563eb' },
-  { value: 'red',    label: 'Red',    swatch: '#dc2626' },
-  { value: 'green',  label: 'Green',  swatch: '#16a34a' },
-  { value: 'purple', label: 'Purple', swatch: '#9333ea' },
-];
-
 const THEME_OPTIONS: { value: 'light' | 'dark' | 'system'; label: string; Icon: React.ElementType }[] = [
   { value: 'light', label: 'Light', Icon: Sun },
   { value: 'dark', label: 'Dark', Icon: Moon },
@@ -48,7 +41,7 @@ const THEME_OPTIONS: { value: 'light' | 'dark' | 'system'; label: string; Icon: 
 
 function Section({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+    <div className="bg-white dark:bg-neutral-900 rounded-2xl border border-slate-200 dark:border-neutral-800 overflow-hidden shadow-sm">
       {children}
     </div>
   );
@@ -60,10 +53,10 @@ function SectionHeader({ label, description, action }: {
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4 border-b border-slate-100 dark:border-slate-800">
+    <div className="flex items-center justify-between px-4 sm:px-6 pt-4 sm:pt-5 pb-3 sm:pb-4 border-b border-slate-100 dark:border-neutral-800">
       <div>
         <h2 className="text-sm font-bold text-accent-600 dark:text-accent-400 tracking-wide">{label}</h2>
-        {description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{description}</p>}
+        {description && <p className="text-xs text-slate-500 dark:text-neutral-400 mt-0.5">{description}</p>}
       </div>
       {action}
     </div>
@@ -278,15 +271,15 @@ export default function UserSettings({
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-slate-50 dark:bg-slate-950">
+    <div className="h-full overflow-y-auto bg-slate-50 dark:bg-neutral-950">
 
       {/* Page header */}
-      <div className="sticky top-0 z-10 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2">
+      <div className="sticky top-0 z-10 bg-slate-50/90 dark:bg-neutral-950/90 backdrop-blur-sm border-b border-slate-200 dark:border-neutral-800 px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
           onClick={onClose}
-          className="h-8 w-8 -ml-1 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 shrink-0"
+          className="h-8 w-8 -ml-1 rounded-xl text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-neutral-800 shrink-0"
         >
           <ChevronLeft className="w-4 h-4" />
         </Button>
@@ -301,29 +294,29 @@ export default function UserSettings({
           <SectionHeader label="Account" />
           <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-3 sm:space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email</Label>
+              <Label className="text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase tracking-wider">Email</Label>
               <Input
                 value={user.email || ''}
                 disabled
-                className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500 text-sm"
+                className="bg-slate-50 dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 text-slate-400 dark:text-neutral-500 text-sm"
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Display Name</Label>
+                <Label className="text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase tracking-wider">Display Name</Label>
                 <Input
                   value={displayName}
                   onChange={e => setDisplayName(e.target.value)}
-                  className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-sm focus-visible:ring-accent-500"
+                  className="bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 text-sm focus-visible:ring-accent-500"
                   placeholder="Your name"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Job Title</Label>
+                <Label className="text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase tracking-wider">Job Title</Label>
                 <Input
                   value={title}
                   onChange={e => setTitle(e.target.value)}
-                  className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-sm focus-visible:ring-accent-500"
+                  className="bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 text-sm focus-visible:ring-accent-500"
                   placeholder="e.g. Court Case Manager"
                 />
               </div>
@@ -347,7 +340,7 @@ export default function UserSettings({
           <Section>
             <SectionHeader label="Password" />
             <div className="px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-3">
-              <p className="text-sm text-slate-500 dark:text-slate-400 flex-1">Send a reset link to {user.email}</p>
+              <p className="text-sm text-slate-500 dark:text-neutral-400 flex-1">Send a reset link to {user.email}</p>
               <Button
                 size="sm"
                 onClick={handlePasswordReset}
@@ -368,10 +361,10 @@ export default function UserSettings({
         {/* Appearance */}
         <Section>
           <SectionHeader label="Appearance" />
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-slate-100 dark:divide-neutral-800">
             <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 gap-3">
-              <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">Mode</span>
-              <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 shrink-0">
+              <span className="text-sm text-slate-700 dark:text-neutral-300 shrink-0">Mode</span>
+              <div className="flex gap-1 bg-slate-100 dark:bg-neutral-800 rounded-lg p-0.5 shrink-0">
                 {THEME_OPTIONS.map(({ value, label, Icon }) => (
                   <button
                     key={value}
@@ -379,8 +372,8 @@ export default function UserSettings({
                     className={cn(
                       'flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-md text-sm transition-all',
                       themePreference === value
-                        ? 'bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
+                        ? 'bg-white dark:bg-neutral-700 text-slate-800 dark:text-neutral-200 shadow-sm'
+                        : 'text-slate-500 dark:text-neutral-400 hover:text-slate-700 dark:hover:text-neutral-300'
                     )}
                   >
                     <Icon className="w-3.5 h-3.5 shrink-0" />
@@ -390,19 +383,37 @@ export default function UserSettings({
               </div>
             </div>
             <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 gap-3">
-              <span className="text-sm text-slate-700 dark:text-slate-300 shrink-0">Accent Color</span>
-              <div className="flex items-center gap-2.5 sm:gap-3">
-                {PALETTES.map(({ value, label, swatch }) => (
+              <span className="text-sm text-slate-700 dark:text-neutral-300 shrink-0">Accent</span>
+              <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap justify-end">
+                {PALETTE_OPTIONS.map(({ value, label, swatch }) => (
                   <button
                     key={value}
                     onClick={() => onPaletteChange(value)}
                     title={label}
-                    className="w-6 h-6 rounded-full transition-all focus:outline-none"
-                    style={{
-                      backgroundColor: swatch,
-                      boxShadow: paletteColor === value ? `0 0 0 2px white, 0 0 0 4px ${swatch}` : undefined,
-                    }}
-                  />
+                    className={cn(
+                      'relative w-6 h-6 rounded-full transition-all focus:outline-none overflow-hidden',
+                      value === 'neutral' && 'ring-1 ring-slate-300 dark:ring-neutral-600',
+                      paletteColor === value && value !== 'neutral' && 'ring-2 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900',
+                    )}
+                    style={
+                      value === 'neutral'
+                        ? undefined
+                        : {
+                            backgroundColor: swatch,
+                            boxShadow: paletteColor === value ? `0 0 0 2px white, 0 0 0 4px ${swatch}` : undefined,
+                          }
+                    }
+                  >
+                    {value === 'neutral' && (
+                      <>
+                        <span className="block h-1/2 w-full bg-neutral-950 dark:bg-neutral-950" aria-hidden />
+                        <span className="block h-1/2 w-full bg-white dark:bg-neutral-200" aria-hidden />
+                      </>
+                    )}
+                    {value === 'neutral' && paletteColor === 'neutral' && (
+                      <span className="absolute inset-0 rounded-full ring-2 ring-neutral-500 ring-offset-2 ring-offset-white dark:ring-offset-neutral-900 pointer-events-none" />
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
@@ -418,29 +429,29 @@ export default function UserSettings({
                 variant="ghost"
                 size="sm"
                 onClick={() => persistTemplates(DEFAULT_STORED_TEMPLATES)}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 gap-1 shrink-0 h-7 px-2"
+                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-neutral-300 gap-1 shrink-0 h-7 px-2"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span className="hidden sm:inline">Reset to Agency Templates</span>
               </Button>
             }
           />
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-slate-100 dark:divide-neutral-800">
             {localTemplates.map((cat, catIdx) => (
               <div key={cat.domain}>
                 <button
                   onClick={() => setExpandedCats(p => ({ ...p, [catIdx]: !p[catIdx] }))}
-                  className="w-full flex items-center justify-between px-4 sm:px-6 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 sm:px-6 py-3.5 hover:bg-slate-50 dark:hover:bg-neutral-800/50 transition-colors"
                 >
-                  <span className="text-sm text-slate-700 dark:text-slate-300">{cat.domain}</span>
+                  <span className="text-sm text-slate-700 dark:text-neutral-300">{cat.domain}</span>
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-medium text-slate-400 dark:text-slate-500 tabular-nums bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">{cat.templates.length}</span>
+                    <span className="text-xs font-medium text-slate-400 dark:text-neutral-500 tabular-nums bg-slate-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded-md">{cat.templates.length}</span>
                     <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform duration-200", expandedCats[catIdx] && "rotate-180")} />
                   </div>
                 </button>
 
                 {expandedCats[catIdx] && (
-                  <div className="border-t border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-950/30">
+                  <div className="border-t border-slate-100 dark:border-neutral-800 divide-y divide-slate-100 dark:divide-neutral-800 bg-slate-50/50 dark:bg-neutral-950/30">
                     {cat.templates.map((tmpl, tmplIdx) => {
                       const key = `${catIdx}-${tmplIdx}`;
                       return (
@@ -451,14 +462,14 @@ export default function UserSettings({
                                 value={editLabel}
                                 onChange={e => setEditLabel(e.target.value)}
                                 placeholder="Label"
-                                className="h-8 text-sm bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500"
+                                className="h-8 text-sm bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500"
                                 autoFocus
                               />
                               <Textarea
                                 value={editNotes}
                                 onChange={e => setEditNotes(e.target.value)}
                                 placeholder="Notes"
-                                className="text-sm min-h-[64px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
+                                className="text-sm min-h-[64px] bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500 resize-none"
                               />
                               <div className="flex gap-2 justify-end">
                                 <Button size="sm" variant="ghost" onClick={() => setEditingKey(null)} className="text-sm text-slate-500">
@@ -471,7 +482,7 @@ export default function UserSettings({
                             </div>
                           ) : (
                             <div className="flex items-center justify-between gap-2 group">
-                              <span className="text-sm text-slate-600 dark:text-slate-400 leading-snug">{tmpl.label}</span>
+                              <span className="text-sm text-slate-600 dark:text-neutral-400 leading-snug">{tmpl.label}</span>
                               <div className="flex gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <Button variant="ghost" size="icon" onClick={() => startEditTemplate(catIdx, tmplIdx)} className="h-7 w-7 text-slate-400 hover:text-accent-600 dark:hover:text-accent-400">
                                   <Pencil className="w-3 h-3" />
@@ -492,14 +503,14 @@ export default function UserSettings({
                           value={newLabel}
                           onChange={e => setNewLabel(e.target.value)}
                           placeholder="Label"
-                          className="h-8 text-sm bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500"
+                          className="h-8 text-sm bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500"
                           autoFocus
                         />
                         <Textarea
                           value={newNotes}
                           onChange={e => setNewNotes(e.target.value)}
                           placeholder="Notes (optional)"
-                          className="text-sm min-h-[56px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
+                          className="text-sm min-h-[56px] bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500 resize-none"
                         />
                         <div className="flex gap-2 justify-end">
                           <Button size="sm" variant="ghost" onClick={() => { setAddingToCat(null); setNewLabel(''); setNewNotes(''); }} className="text-sm text-slate-500">
@@ -513,7 +524,7 @@ export default function UserSettings({
                     ) : (
                       <button
                         onClick={() => { setAddingToCat(catIdx); setEditingKey(null); setNewLabel(''); setNewNotes(''); }}
-                        className="w-full flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                        className="w-full flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/50 transition-colors"
                       >
                         <Plus className="w-3 h-3" /> Add template
                       </button>
@@ -535,16 +546,16 @@ export default function UserSettings({
                 variant="ghost"
                 size="sm"
                 onClick={() => persistBatches(GOAL_BATCHES)}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 gap-1 shrink-0 h-7 px-2"
+                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-neutral-300 gap-1 shrink-0 h-7 px-2"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span className="hidden sm:inline">Reset to Agency Batches</span>
               </Button>
             }
           />
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-slate-100 dark:divide-neutral-800">
             {localBatches.length === 0 && (
-              <p className="px-4 sm:px-6 py-4 text-sm text-slate-400 dark:text-slate-500">No batches yet.</p>
+              <p className="px-4 sm:px-6 py-4 text-sm text-slate-400 dark:text-neutral-500">No batches yet.</p>
             )}
             {localBatches.map((batch) => {
               const labelKey = `label:${batch.id}`;
@@ -553,11 +564,11 @@ export default function UserSettings({
                   <div className="flex items-center gap-1 pr-3 sm:pr-4">
                     <button
                       onClick={() => setExpandedBatches(prev => ({ ...prev, [batch.id]: !prev[batch.id] }))}
-                      className="flex-1 min-w-0 flex items-center justify-between px-4 sm:px-6 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors text-left"
+                      className="flex-1 min-w-0 flex items-center justify-between px-4 sm:px-6 py-3.5 hover:bg-slate-50 dark:hover:bg-neutral-800/50 transition-colors text-left"
                     >
-                      <span className="text-sm text-slate-700 dark:text-slate-300 truncate">{batch.label}</span>
+                      <span className="text-sm text-slate-700 dark:text-neutral-300 truncate">{batch.label}</span>
                       <span className="ml-3 flex items-center gap-2.5 shrink-0">
-                        <span className="text-xs font-medium text-slate-400 dark:text-slate-500 tabular-nums bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md">{batch.goals.length}</span>
+                        <span className="text-xs font-medium text-slate-400 dark:text-neutral-500 tabular-nums bg-slate-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded-md">{batch.goals.length}</span>
                         <ChevronDown className={cn("w-3.5 h-3.5 text-slate-400 transition-transform duration-200", expandedBatches[batch.id] && "rotate-180")} />
                       </span>
                     </button>
@@ -571,7 +582,7 @@ export default function UserSettings({
                         setAddingBatch(false);
                         setExpandedBatches(prev => ({ ...prev, [batch.id]: true }));
                       }}
-                      className="h-7 w-7 shrink-0 text-slate-300 dark:text-slate-600 hover:text-accent-600 dark:hover:text-accent-400"
+                      className="h-7 w-7 shrink-0 text-slate-300 dark:text-neutral-600 hover:text-accent-600 dark:hover:text-accent-400"
                       aria-label={`Rename ${batch.label}`}
                     >
                       <Pencil className="w-3 h-3" />
@@ -580,7 +591,7 @@ export default function UserSettings({
                       variant="ghost"
                       size="icon"
                       onClick={() => persistBatches(localBatches.filter(item => item.id !== batch.id))}
-                      className="h-7 w-7 shrink-0 text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400"
+                      className="h-7 w-7 shrink-0 text-slate-300 dark:text-neutral-600 hover:text-red-500 dark:hover:text-red-400"
                       aria-label={`Delete ${batch.label}`}
                     >
                       <Trash2 className="w-3 h-3" />
@@ -588,14 +599,14 @@ export default function UserSettings({
                   </div>
 
                   {expandedBatches[batch.id] && (
-                    <div className="border-t border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 bg-slate-50/50 dark:bg-slate-950/30">
+                    <div className="border-t border-slate-100 dark:border-neutral-800 divide-y divide-slate-100 dark:divide-neutral-800 bg-slate-50/50 dark:bg-neutral-950/30">
                       {editingBatchKey === labelKey && (
                         <div className="px-4 sm:px-6 py-3 space-y-2">
                           <Input
                             value={editBatchLabel}
                             onChange={e => setEditBatchLabel(e.target.value)}
                             placeholder="Batch name"
-                            className="h-8 text-sm bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500"
+                            className="h-8 text-sm bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500"
                             autoFocus
                           />
                           <div className="flex gap-2 justify-end">
@@ -618,7 +629,7 @@ export default function UserSettings({
                                   value={editBatchGoal}
                                   onChange={e => setEditBatchGoal(e.target.value)}
                                   placeholder="Goal text added to the case plan"
-                                  className="text-sm min-h-[64px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
+                                  className="text-sm min-h-[64px] bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500 resize-none"
                                   autoFocus
                                 />
                                 <div className="flex gap-2 justify-end">
@@ -632,7 +643,7 @@ export default function UserSettings({
                               </div>
                             ) : (
                               <div className="flex items-start justify-between gap-2">
-                                <span className="text-sm text-slate-600 dark:text-slate-400 leading-snug">{goal}</span>
+                                <span className="text-sm text-slate-600 dark:text-neutral-400 leading-snug">{goal}</span>
                                 <div className="flex gap-0.5 shrink-0">
                                   <Button
                                     variant="ghost"
@@ -671,7 +682,7 @@ export default function UserSettings({
                             value={editBatchGoal}
                             onChange={e => setEditBatchGoal(e.target.value)}
                             placeholder="Goal text added to the case plan"
-                            className="text-sm min-h-[56px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
+                            className="text-sm min-h-[56px] bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500 resize-none"
                             autoFocus
                           />
                           <div className="flex gap-2 justify-end">
@@ -691,7 +702,7 @@ export default function UserSettings({
                             setEditBatchGoal('');
                             setAddingBatch(false);
                           }}
-                          className="w-full flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                          className="w-full flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/50 transition-colors"
                         >
                           <Plus className="w-3 h-3" /> Add goal
                         </button>
@@ -708,14 +719,14 @@ export default function UserSettings({
                   value={newBatchLabel}
                   onChange={e => setNewBatchLabel(e.target.value)}
                   placeholder="Batch name"
-                  className="h-8 text-sm bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500"
+                  className="h-8 text-sm bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500"
                   autoFocus
                 />
                 <Textarea
                   value={newBatchGoal}
                   onChange={e => setNewBatchGoal(e.target.value)}
                   placeholder="First goal in the batch"
-                  className="text-sm min-h-[56px] bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus-visible:ring-accent-500 resize-none"
+                  className="text-sm min-h-[56px] bg-white dark:bg-neutral-800 border-slate-200 dark:border-neutral-700 focus-visible:ring-accent-500 resize-none"
                 />
                 <div className="flex gap-2 justify-end">
                   <Button size="sm" variant="ghost" onClick={() => { setAddingBatch(false); setNewBatchLabel(''); setNewBatchGoal(''); }} className="text-sm text-slate-500">
@@ -735,7 +746,7 @@ export default function UserSettings({
                   setNewBatchLabel('');
                   setNewBatchGoal('');
                 }}
-                className="w-full flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                className="w-full flex items-center gap-1.5 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/50 transition-colors"
               >
                 <Plus className="w-3 h-3" /> Add batch
               </button>
@@ -752,17 +763,17 @@ export default function UserSettings({
                 variant="ghost"
                 size="sm"
                 onClick={() => persistPhases(DEFAULT_MILESTONE_PHASES)}
-                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 gap-1 shrink-0 h-7 px-2"
+                className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-neutral-300 gap-1 shrink-0 h-7 px-2"
               >
                 <RotateCcw className="w-3 h-3" />
                 <span className="hidden sm:inline">Reset to Agency Templates</span>
               </Button>
             }
           />
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-slate-100 dark:divide-neutral-800">
             {localPhases.map((phase, i) => (
               <div key={i} className="flex items-center gap-3 px-4 sm:px-6 py-3">
-                <span className="w-5 h-5 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] font-bold text-slate-400 dark:text-slate-500 tabular-nums">
+                <span className="w-5 h-5 shrink-0 flex items-center justify-center rounded-full bg-slate-100 dark:bg-neutral-800 text-[10px] font-bold text-slate-400 dark:text-neutral-500 tabular-nums">
                   {i + 1}
                 </span>
                 <Input
@@ -775,7 +786,7 @@ export default function UserSettings({
                     const updated = localPhases.map((p, pi) => pi === i ? { label: e.target.value } : p);
                     persistPhases(updated);
                   }}
-                  className="h-8 text-sm bg-transparent border-0 shadow-none focus-visible:ring-0 focus-visible:bg-slate-50 dark:focus-visible:bg-slate-800 rounded-lg px-2 -mx-2 transition-colors"
+                  className="h-8 text-sm bg-transparent border-0 shadow-none focus-visible:ring-0 focus-visible:bg-slate-50 dark:focus-visible:bg-neutral-800 rounded-lg px-2 -mx-2 transition-colors"
                   placeholder={`Phase ${i + 1} name`}
                 />
                 <Button
@@ -786,7 +797,7 @@ export default function UserSettings({
                     { removedPhaseIndex: i + 1 }
                   )}
                   disabled={localPhases.length <= 1}
-                  className="h-7 w-7 shrink-0 text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30"
+                  className="h-7 w-7 shrink-0 text-slate-300 dark:text-neutral-600 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
@@ -795,7 +806,7 @@ export default function UserSettings({
             {localPhases.length < MAX_MILESTONE_PHASES && (
               <button
                 onClick={() => persistPhases([...localPhases, { label: '' }])}
-                className="w-full flex items-center gap-2 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/20 transition-colors"
+                className="w-full flex items-center gap-2 px-4 sm:px-6 py-3 text-sm text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/50 transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" /> Add phase
               </button>
@@ -809,18 +820,18 @@ export default function UserSettings({
             onClick={() => signOut(auth)}
             className="w-full flex items-center gap-3 px-4 sm:px-6 py-4 group hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors rounded-2xl"
           >
-            <LogOut className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
-            <span className="text-sm text-slate-600 dark:text-slate-400 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">Sign out</span>
+            <LogOut className="w-4 h-4 text-slate-400 dark:text-neutral-500 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors" />
+            <span className="text-sm text-slate-600 dark:text-neutral-400 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">Sign out</span>
           </button>
         </Section>
 
         {/* Legal */}
         <div className="flex items-center justify-center gap-4 pb-4">
-          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 dark:text-slate-500 hover:text-accent-600 dark:hover:text-accent-400 transition-colors">
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 dark:text-neutral-500 hover:text-accent-600 dark:hover:text-accent-400 transition-colors">
             Privacy Policy
           </a>
-          <span className="text-slate-300 dark:text-slate-700 select-none">&middot;</span>
-          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 dark:text-slate-500 hover:text-accent-600 dark:hover:text-accent-400 transition-colors">
+          <span className="text-slate-300 dark:text-neutral-700 select-none">&middot;</span>
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-xs text-slate-400 dark:text-neutral-500 hover:text-accent-600 dark:hover:text-accent-400 transition-colors">
             Terms of Service
           </a>
         </div>

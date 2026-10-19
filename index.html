@@ -12,7 +12,7 @@
     <script>
       (() => {
         const palette = localStorage.getItem('paletteColor');
-        const allowed = ['orange', 'blue', 'red', 'green', 'purple'];
+        const allowed = ['orange', 'blue', 'red', 'green', 'purple', 'neutral'];
         document.documentElement.dataset.palette = allowed.includes(palette) ? palette : 'blue';
 
         const preference = localStorage.getItem('themePreference');

@@ -82,7 +82,7 @@ export default function ParticipantWorkspace({
                 <Input
                   value={editedName}
                   onChange={(e) => onEditedNameChange(e.target.value)}
-                  className="text-2xl font-black h-12 bg-white dark:bg-slate-900 border-accent-200 dark:border-accent-800 focus-visible:ring-accent-500"
+                  className="text-2xl font-black h-12 bg-white dark:bg-neutral-900 border-accent-200 dark:border-neutral-700 focus-visible:ring-accent-500"
                   autoFocus
                   placeholder="Participant Name"
                 />
@@ -113,7 +113,7 @@ export default function ParticipantWorkspace({
                     variant="ghost"
                     size="icon"
                     onClick={onStartEditing}
-                    className="text-slate-400 dark:text-slate-500 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/30 rounded-full h-8 w-8"
+                    className="text-slate-400 dark:text-neutral-500 hover:text-accent-600 dark:hover:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/60 rounded-full h-8 w-8"
                     title="Edit Profile"
                   >
                     <Pencil className="w-4 h-4" />
@@ -122,7 +122,7 @@ export default function ParticipantWorkspace({
                     variant="ghost"
                     size="icon"
                     onClick={onRequestDelete}
-                    className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full h-8 w-8"
+                    className="text-slate-400 dark:text-neutral-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-full h-8 w-8"
                     title="Delete Profile"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -131,14 +131,14 @@ export default function ParticipantWorkspace({
               </>
             )}
           </div>
-          <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400 font-medium">
+          <div className="flex items-center gap-4 text-slate-500 dark:text-neutral-400 font-medium">
             <div className="flex items-center gap-1.5">
               <Hash className="w-4 h-4" />
               {isEditingParticipant ? (
                 <Input
                   value={editedCaseNumber}
                   onChange={(e) => onEditedCaseNumberChange(e.target.value)}
-                  className="h-8 w-40 font-mono text-xs bg-white dark:bg-slate-900 border-accent-200 dark:border-accent-800 focus-visible:ring-accent-500"
+                  className="h-8 w-40 font-mono text-xs bg-white dark:bg-neutral-900 border-accent-200 dark:border-neutral-700 focus-visible:ring-accent-500"
                   placeholder="Case Number"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') onSaveParticipant();
@@ -149,7 +149,7 @@ export default function ParticipantWorkspace({
                 <span className="font-mono">{selectedParticipant.caseNumber}</span>
               )}
             </div>
-            <div className="hidden md:flex w-1 h-1 bg-slate-300 dark:bg-slate-700 rounded-full"></div>
+            <div className="hidden md:flex w-1 h-1 bg-slate-300 dark:bg-neutral-700 rounded-full"></div>
             <div className="hidden md:flex items-center gap-1.5">
               <UserIcon className="w-4 h-4" />
               <span>Assigned to {user.displayName}</span>
@@ -157,23 +157,23 @@ export default function ParticipantWorkspace({
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-800 no-print">
+        <div className="bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-slate-200 dark:border-neutral-800 shadow-sm grid grid-cols-3 divide-x divide-slate-100 dark:divide-neutral-800 no-print">
           <div className="space-y-1 pr-3 sm:pr-5">
-            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Current Phase</p>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider">Current Phase</p>
             <div className="flex items-center gap-1.5">
               <span className="text-xl font-black text-accent-600 dark:text-accent-400">{selectedParticipant.currentPhase}</span>
-              <span className="text-slate-300 dark:text-slate-700 font-bold text-sm">/ {milestonePhases.length}</span>
+              <span className="text-slate-300 dark:text-neutral-700 font-bold text-sm">/ {milestonePhases.length}</span>
             </div>
           </div>
           <div className="space-y-1 px-3 sm:px-5">
-            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Progress</p>
+            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider">Progress</p>
             <div className="space-y-1">
               <span className="text-xl font-black text-accent-600 dark:text-accent-400">{Math.round((selectedParticipant.currentPhase / milestonePhases.length) * 100)}%</span>
-              <Progress value={(selectedParticipant.currentPhase / milestonePhases.length) * 100} className="h-1.5 w-full max-w-[4rem] bg-slate-100 dark:bg-slate-800" />
+              <Progress value={(selectedParticipant.currentPhase / milestonePhases.length) * 100} className="h-1.5 w-full max-w-[4rem] bg-slate-100 dark:bg-neutral-800" />
             </div>
           </div>
           <div className="space-y-1 pl-3 sm:pl-5">
-            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1">
+            <p className="text-[10px] sm:text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider flex items-center gap-1">
               <CalendarDays className="w-3 h-3 shrink-0" /> Date
             </p>
             <DatePicker
@@ -188,20 +188,20 @@ export default function ParticipantWorkspace({
       </div>
 
       <Tabs value={activeTab} onValueChange={onActiveTabChange} className="w-full">
-        <TabsList className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1.5 py-[3.5px] h-14 rounded-2xl shadow-sm inline-flex w-auto no-print">
-          <TabsTrigger value="plan" aria-label="Overview" className="dark:data-active:bg-slate-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
+        <TabsList className="bg-white dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700 px-1.5 py-[3.5px] h-14 rounded-2xl shadow-sm inline-flex w-auto no-print">
+          <TabsTrigger value="plan" aria-label="Overview" className="dark:data-active:bg-neutral-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
             <LayoutDashboard className="w-4 h-4" />
             <span className="hidden md:inline">Overview</span>
           </TabsTrigger>
-          <TabsTrigger value="ai" aria-label="Goals" className="dark:data-active:bg-slate-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
+          <TabsTrigger value="ai" aria-label="Goals" className="dark:data-active:bg-neutral-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
             <Target className="w-4 h-4" />
             <span className="hidden md:inline">Goals</span>
           </TabsTrigger>
-          <TabsTrigger value="report" aria-label="Case Plan" className="dark:data-active:bg-slate-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
+          <TabsTrigger value="report" aria-label="Case Plan" className="dark:data-active:bg-neutral-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
             <FileText className="w-4 h-4" />
             <span className="hidden md:inline">Case Plan</span>
           </TabsTrigger>
-          <TabsTrigger value="history" aria-label="History" className="dark:data-active:bg-slate-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
+          <TabsTrigger value="history" aria-label="History" className="dark:data-active:bg-neutral-800 dark:data-active:border-transparent dark:data-active:[box-shadow:inset_0_1px_0_rgba(255,255,255,0.08),0_1px_2px_rgba(0,0,0,0.4)] px-4 md:px-8 rounded-xl font-bold transition-all">
             <History className="w-4 h-4" />
             <span className="hidden md:inline">History</span>
           </TabsTrigger>
@@ -225,7 +225,7 @@ export default function ParticipantWorkspace({
                 type="button"
                 variant="outline"
                 onClick={() => onShareAndSignOpenChange(true)}
-                className="w-full sm:w-auto border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-semibold shadow-sm transition-all active:scale-[0.98]"
+                className="w-full sm:w-auto border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-700 dark:text-neutral-200 font-semibold shadow-sm transition-all active:scale-[0.98]"
               >
                 <Link2 className="w-4 h-4 text-accent-600 dark:text-accent-400" />
                 Share & Sign

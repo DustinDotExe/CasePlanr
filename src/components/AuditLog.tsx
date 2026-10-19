@@ -48,7 +48,7 @@ function getActionColors(action: string) {
   switch (action) {
     case 'created': return 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400';
     case 'deleted': return 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400';
-    default:        return 'bg-accent-100 dark:bg-accent-900/30 text-accent-700 dark:text-accent-400';
+    default:        return 'bg-accent-100 dark:bg-neutral-800/50 text-accent-700 dark:text-accent-400';
   }
 }
 
@@ -177,35 +177,35 @@ export default function AuditLog({
   return (
     <div className="space-y-6">
     <div ref={cardRef} data-report-container className="print:m-0 print:p-0">
-    <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-lg max-w-5xl mx-auto print:max-w-none print:shadow-none print:border-none">
-      <CardHeader className="border-b border-slate-100 dark:border-slate-800 pb-4 bg-white dark:bg-slate-900 space-y-3">
+    <Card className="bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 shadow-lg max-w-5xl mx-auto print:max-w-none print:shadow-none print:border-none">
+      <CardHeader className="border-b border-slate-100 dark:border-neutral-800 pb-4 bg-white dark:bg-neutral-900 space-y-3">
         {/* Title row */}
         <div className="grid grid-cols-3 items-start gap-4">
           <div className="col-span-2 space-y-1">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight leading-snug">
+            <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-neutral-100 tracking-tight leading-snug">
               {participant.name} /<br className="sm:hidden print:hidden" /> Case Plan History
             </h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+            <p className="text-slate-500 dark:text-neutral-400 text-sm font-medium">
               Created on {new Date().toLocaleDateString()}
             </p>
           </div>
-          <div className="hidden sm:flex items-center justify-center gap-2 font-bold text-lg md:text-xl text-slate-900 dark:text-slate-100">
+          <div className="hidden sm:flex items-center justify-center gap-2 font-bold text-lg md:text-xl text-slate-900 dark:text-neutral-100">
             <CasePlanrLogo className="w-8 h-8" />
             <span>CasePlanr</span>
           </div>
         </div>
 
-        <Separator className="bg-slate-100 dark:bg-slate-800" />
+        <Separator className="bg-slate-100 dark:bg-neutral-800" />
 
         {/* Participant info strip */}
-        <section className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-center divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-slate-800">
+        <section className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-center divide-y sm:divide-y-0 sm:divide-x divide-slate-100 dark:divide-neutral-800">
           <div className="text-center py-1.5 pt-0 sm:py-0">
-            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Participant</p>
-            <p className="text-base font-bold text-slate-800 dark:text-slate-200">{participant.name}</p>
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider mb-0.5">Participant</p>
+            <p className="text-base font-bold text-slate-800 dark:text-neutral-200">{participant.name}</p>
           </div>
           <div className="text-center py-1.5 sm:py-0">
-            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Current Phase</p>
-            <p className="text-base font-bold text-slate-800 dark:text-slate-200">
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider mb-0.5">Current Phase</p>
+            <p className="text-base font-bold text-slate-800 dark:text-neutral-200">
               {participant.currentPhase}
               {milestonePhases[participant.currentPhase - 1]?.label
                 ? ` – ${milestonePhases[participant.currentPhase - 1].label}`
@@ -213,23 +213,23 @@ export default function AuditLog({
             </p>
           </div>
           <div className="text-center py-1.5 pb-0 sm:py-0">
-            <p className="text-[11px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Case Number</p>
-            <p className="text-base font-bold text-slate-800 dark:text-slate-200">{participant.caseNumber}</p>
+            <p className="text-[11px] font-semibold text-slate-400 dark:text-neutral-500 uppercase tracking-wider mb-0.5">Case Number</p>
+            <p className="text-base font-bold text-slate-800 dark:text-neutral-200">{participant.caseNumber}</p>
           </div>
         </section>
 
-        <Separator className="bg-slate-100 dark:bg-slate-800" />
+        <Separator className="bg-slate-100 dark:bg-neutral-800" />
 
         {/* Activity Log label */}
         <div className="flex items-center gap-2">
           <History className="w-4 h-4 text-accent-600 dark:text-accent-400" />
-          <span className="text-sm font-bold text-slate-700 dark:text-slate-300">History</span>
-          <span className="text-xs font-normal text-slate-400 dark:text-slate-500">
+          <span className="text-sm font-bold text-slate-700 dark:text-neutral-300">History</span>
+          <span className="text-xs font-normal text-slate-400 dark:text-neutral-500">
             — {visible.length} {visible.length === 1 ? 'entry' : 'entries'}
           </span>
         </div>
         {briefVisible && (
-          <div className="rounded-lg border border-accent-200 dark:border-accent-800/60 bg-accent-50 dark:bg-accent-950/20 p-4 space-y-2">
+          <div className="rounded-lg border border-accent-200 dark:border-neutral-700/60 bg-accent-50 dark:bg-neutral-800/40 p-4 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5 text-[11px] font-semibold text-accent-700 dark:text-accent-400 uppercase tracking-wider">
                 Narrative Summary
@@ -240,14 +240,14 @@ export default function AuditLog({
                     <button
                       onClick={() => setBriefEditing(e => !e)}
                       title={briefEditing ? 'Done editing' : 'Edit'}
-                      className="p-1 rounded text-accent-400 hover:text-accent-600 dark:hover:text-accent-300 hover:bg-accent-100 dark:hover:bg-accent-900/30 transition-colors"
+                      className="p-1 rounded text-accent-400 hover:text-accent-600 dark:hover:text-accent-300 hover:bg-accent-100 dark:hover:bg-neutral-800/50 transition-colors"
                     >
                       {briefEditing ? <Check className="w-3.5 h-3.5" /> : <Pencil className="w-3.5 h-3.5" />}
                     </button>
                     <button
                       onClick={sendToObservations}
                       title="Send to Case Manager Observations"
-                      className="no-print flex items-center gap-1 px-2 py-1 rounded text-accent-400 hover:text-accent-600 dark:hover:text-accent-300 hover:bg-accent-100 dark:hover:bg-accent-900/30 transition-colors text-[10px] font-semibold uppercase tracking-wide"
+                      className="no-print flex items-center gap-1 px-2 py-1 rounded text-accent-400 hover:text-accent-600 dark:hover:text-accent-300 hover:bg-accent-100 dark:hover:bg-neutral-800/50 transition-colors text-[10px] font-semibold uppercase tracking-wide"
                     >
                       {sentToObs ? (
                         <><Check className="w-3.5 h-3.5" /><span>Sent</span></>
@@ -261,14 +261,14 @@ export default function AuditLog({
                   onClick={generateBrief}
                   disabled={briefStreaming}
                   title="Regenerate"
-                  className="p-1 rounded text-accent-400 hover:text-accent-600 dark:hover:text-accent-300 hover:bg-accent-100 dark:hover:bg-accent-900/30 transition-colors disabled:opacity-40"
+                  className="p-1 rounded text-accent-400 hover:text-accent-600 dark:hover:text-accent-300 hover:bg-accent-100 dark:hover:bg-neutral-800/50 transition-colors disabled:opacity-40"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                 </button>
                 <button
                   onClick={() => setBriefVisible(false)}
                   title="Dismiss"
-                  className="p-1 rounded text-accent-400 hover:text-accent-600 dark:hover:text-accent-300 hover:bg-accent-100 dark:hover:bg-accent-900/30 transition-colors"
+                  className="p-1 rounded text-accent-400 hover:text-accent-600 dark:hover:text-accent-300 hover:bg-accent-100 dark:hover:bg-neutral-800/50 transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -280,11 +280,11 @@ export default function AuditLog({
               <Textarea
                 value={briefText}
                 onChange={e => setBriefText(e.target.value)}
-                className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 min-h-[100px] bg-white dark:bg-slate-900 border-accent-200 dark:border-accent-700 resize-none"
+                className="text-sm leading-relaxed text-slate-700 dark:text-neutral-300 min-h-[100px] bg-white dark:bg-neutral-900 border-accent-200 dark:border-accent-700 resize-none"
                 autoFocus
               />
             ) : (
-              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+              <p className="text-sm leading-relaxed text-slate-700 dark:text-neutral-300">
                 {briefText}
                 {briefStreaming && <span className="inline-block w-1.5 h-4 ml-0.5 bg-accent-400 animate-pulse rounded-sm align-middle" />}
               </p>
@@ -300,7 +300,7 @@ export default function AuditLog({
                 className={`text-[11px] font-bold px-3 py-1 rounded-full border transition-colors ${
                   activeFilter === f.key
                     ? 'bg-accent-600 dark:bg-accent-500 text-white border-accent-600 dark:border-accent-500'
-                    : 'bg-transparent text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-accent-300 dark:hover:border-accent-700 hover:text-accent-600 dark:hover:text-accent-400'
+                    : 'bg-transparent text-slate-500 dark:text-neutral-400 border-slate-200 dark:border-neutral-700 hover:border-accent-300 dark:hover:border-accent-700 hover:text-accent-600 dark:hover:text-accent-400'
                 }`}
               >
                 {f.label}
@@ -313,7 +313,7 @@ export default function AuditLog({
               variant="outline"
               onClick={generateBrief}
               disabled={briefStreaming || loading}
-              className="no-print shrink-0 h-7 text-xs font-semibold gap-1.5 px-2 border-accent-400 dark:border-accent-500 text-accent-600 dark:text-accent-400 hover:bg-accent-50 dark:hover:bg-accent-950/30 hover:text-accent-700 dark:hover:text-accent-300"
+              className="no-print shrink-0 h-7 text-xs font-semibold gap-1.5 px-2 border-accent-400 dark:border-accent-500 text-accent-600 dark:text-accent-400 hover:bg-accent-50 dark:hover:bg-neutral-800/60 hover:text-accent-700 dark:hover:text-accent-300"
             >
               {briefStreaming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Wand2 className="w-3.5 h-3.5" />}
               <span className="hidden sm:inline">Generate Summary</span>
@@ -335,14 +335,14 @@ export default function AuditLog({
 
         {visible.length === 0 ? (
           <div className="py-16 flex flex-col items-center text-center px-6">
-            <History className="w-10 h-10 text-slate-200 dark:text-slate-700 mb-3" />
-            <p className="text-slate-500 dark:text-slate-400 font-medium">No entries for this filter.</p>
-            <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Try a different category or switch to All Activity.</p>
+            <History className="w-10 h-10 text-slate-200 dark:text-neutral-700 mb-3" />
+            <p className="text-slate-500 dark:text-neutral-400 font-medium">No entries for this filter.</p>
+            <p className="text-slate-400 dark:text-neutral-500 text-sm mt-1">Try a different category or switch to All Activity.</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
+          <div className="divide-y divide-slate-100 dark:divide-neutral-800">
             {visible.map((entry) => (
-                <div key={entry.id} className="px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                <div key={entry.id} className="px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-neutral-800/50 transition-colors">
                     <div className="flex gap-4">
                       <div
                         className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${getActionColors(entry.action)}`}
@@ -352,22 +352,22 @@ export default function AuditLog({
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-slate-800 dark:text-slate-200 leading-snug">
+                        <p className="text-sm font-medium text-slate-800 dark:text-neutral-200 leading-snug">
                           {entry.description}
                         </p>
 
                         {entry.details?.newValue && (
                           <p className={`mt-1.5 text-sm leading-relaxed ${
                             entry.category === 'goal_completed' || entry.category === 'goal_uncompleted'
-                              ? 'text-slate-600 dark:text-slate-300'
-                              : 'text-slate-500 dark:text-slate-400'
+                              ? 'text-slate-600 dark:text-neutral-300'
+                              : 'text-slate-500 dark:text-neutral-400'
                           }`}>
                             {entry.details.newValue}
                           </p>
                         )}
 
                         {entry.details?.oldValue && entry.details?.newValue && entry.category !== 'goal_completed' && entry.category !== 'goal_uncompleted' && (
-                          <div className="mt-1.5 flex items-start gap-2 text-xs bg-slate-50 dark:bg-slate-800 rounded-lg px-2.5 py-1.5 w-fit max-w-full text-slate-500 dark:text-slate-400">
+                          <div className="mt-1.5 flex items-start gap-2 text-xs bg-slate-50 dark:bg-neutral-800 rounded-lg px-2.5 py-1.5 w-fit max-w-full text-slate-500 dark:text-neutral-400">
                             <span className="break-all">{entry.details.oldValue}</span>
                             <ArrowRight className="w-3 h-3 shrink-0 mt-0.5" />
                             <span className="break-all">{entry.details.newValue}</span>
@@ -375,15 +375,15 @@ export default function AuditLog({
                         )}
 
                         {entry.details?.oldValue && !entry.details?.newValue && (
-                          <p className="mt-1.5 text-xs bg-slate-50 dark:bg-slate-800 rounded-lg px-2.5 py-1.5 break-all text-slate-500 dark:text-slate-400">
+                          <p className="mt-1.5 text-xs bg-slate-50 dark:bg-neutral-800 rounded-lg px-2.5 py-1.5 break-all text-slate-500 dark:text-neutral-400">
                             {entry.details.oldValue}
                           </p>
                         )}
 
-                        <div className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+                        <div className="flex items-center gap-1.5 mt-2 text-[10px] text-slate-400 dark:text-neutral-500 font-medium">
                           <User className="w-3 h-3" />
                           <span>{entry.changedBy.displayName}</span>
-                          <span className="text-slate-300 dark:text-slate-700">·</span>
+                          <span className="text-slate-300 dark:text-neutral-700">·</span>
                           <span title={formatFullTimestamp(entry.timestamp)}>{formatTimestamp(entry.timestamp)}</span>
                         </div>
                       </div>
@@ -400,7 +400,7 @@ export default function AuditLog({
       <Button
         variant="outline"
         onClick={() => window.print()}
-        className="w-full sm:w-auto border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-200 font-semibold shadow-sm transition-all active:scale-[0.98]"
+        className="w-full sm:w-auto border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:bg-slate-50 dark:hover:bg-neutral-800 text-slate-600 dark:text-neutral-200 font-semibold shadow-sm transition-all active:scale-[0.98]"
       >
         <Printer className="w-4 h-4" />
         Print / Save as PDF

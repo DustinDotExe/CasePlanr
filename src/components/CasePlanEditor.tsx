@@ -205,10 +205,10 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
   return (
     <div className="space-y-6">
       {/* IRAS Domains Selection */}
-      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm">
-        <CardHeader className="border-b border-slate-100 dark:border-slate-800">
-          <CardTitle className="text-lg font-bold text-slate-800 dark:text-slate-200">Target Domains</CardTitle>
-          <CardDescription className="text-sm text-slate-500 dark:text-slate-400">Select the criminogenic needs being addressed in this case plan.</CardDescription>
+      <Card className="bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800 shadow-sm">
+        <CardHeader className="border-b border-slate-100 dark:border-neutral-800">
+          <CardTitle className="text-lg font-bold text-slate-800 dark:text-neutral-200">Target Domains</CardTitle>
+          <CardDescription className="text-sm text-slate-500 dark:text-neutral-400">Select the criminogenic needs being addressed in this case plan.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -221,11 +221,11 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
                     id={domainId} 
                     checked={isSelected}
                     onCheckedChange={() => handleToggleIrasDomain(domain)}
-                    className="w-5 h-5 border-slate-300 dark:border-slate-700 data-[state=checked]:bg-accent-600 data-[state=checked]:border-accent-600"
+                    className="w-5 h-5 border-slate-300 dark:border-neutral-700 data-[state=checked]:bg-accent-600 data-[state=checked]:border-accent-600"
                   />
                   <Label 
                     htmlFor={domainId}
-                    className={`text-sm font-medium cursor-pointer transition-colors ${isSelected ? 'text-accent-700 dark:text-accent-400' : 'text-slate-500 dark:text-slate-400'}`}
+                    className={`text-sm font-medium cursor-pointer transition-colors ${isSelected ? 'text-accent-700 dark:text-accent-400' : 'text-slate-500 dark:text-neutral-400'}`}
                   >
                     {domain}
                   </Label>
@@ -237,10 +237,10 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
       </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <Card className="md:col-span-1 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+      <Card className="md:col-span-1 bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800">
         <CardHeader>
-          <CardTitle className="text-lg font-bold text-slate-800 dark:text-slate-200">Milestone Tracker</CardTitle>
-          <CardDescription className="text-slate-500 dark:text-slate-400">Track progress through {milestonePhases.length} phases.</CardDescription>
+          <CardTitle className="text-lg font-bold text-slate-800 dark:text-neutral-200">Milestone Tracker</CardTitle>
+          <CardDescription className="text-slate-500 dark:text-neutral-400">Track progress through {milestonePhases.length} phases.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {milestonePhases.map((mp, i) => {
@@ -252,11 +252,11 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
                   id={`phase-${i + 1}`}
                   checked={isCompleted}
                   onCheckedChange={() => handleToggleMilestone(phaseKey, i)}
-                  className="w-5 h-5 border-slate-300 dark:border-slate-700 data-[state=checked]:bg-accent-600 data-[state=checked]:border-accent-600"
+                  className="w-5 h-5 border-slate-300 dark:border-neutral-700 data-[state=checked]:bg-accent-600 data-[state=checked]:border-accent-600"
                 />
                 <Label
                   htmlFor={`phase-${i + 1}`}
-                  className={`text-sm font-medium cursor-pointer transition-colors ${isCompleted ? 'text-accent-700 dark:text-accent-400' : 'text-slate-500 dark:text-slate-400'}`}
+                  className={`text-sm font-medium cursor-pointer transition-colors ${isCompleted ? 'text-accent-700 dark:text-accent-400' : 'text-slate-500 dark:text-neutral-400'}`}
                 >
                   Phase {i + 1}: {mp.label}
                 </Label>
@@ -266,18 +266,18 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
         </CardContent>
       </Card>
 
-      <Card className="md:col-span-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+      <Card className="md:col-span-2 bg-white dark:bg-neutral-900 border-slate-200 dark:border-neutral-800">
         <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <CardTitle className="text-lg font-bold text-slate-800 dark:text-slate-200">Case Manager Observations</CardTitle>
-            <CardDescription className="text-slate-500 dark:text-slate-400">Detailed observations and progress logs.</CardDescription>
+            <CardTitle className="text-lg font-bold text-slate-800 dark:text-neutral-200">Case Manager Observations</CardTitle>
+            <CardDescription className="text-slate-500 dark:text-neutral-400">Detailed observations and progress logs.</CardDescription>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <Button 
               size="sm" 
               variant="outline" 
               onClick={toggleListening} 
-              className={`${isListening ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900 animate-pulse' : 'text-slate-600 dark:text-slate-200 border-slate-200 dark:border-slate-800'}`}
+              className={`${isListening ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border-red-200 dark:border-red-900 animate-pulse' : 'text-slate-600 dark:text-neutral-200 border-slate-200 dark:border-neutral-800'}`}
               title={isListening ? "Stop Recording" : "Speech to Text"}
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
@@ -287,7 +287,7 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
               variant="outline" 
               onClick={handleAIRefine} 
               disabled={isRefining}
-              className="text-accent-600 dark:text-accent-200 border-accent-200 dark:border-accent-900 hover:bg-accent-50 dark:hover:bg-accent-950/30"
+              className="text-accent-600 dark:text-accent-200 border-accent-200 dark:border-neutral-700 hover:bg-accent-50 dark:hover:bg-neutral-800/60"
               title="AI Refine"
             >
               {isRefining ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
@@ -305,18 +305,18 @@ export default function CasePlanEditor({ participant, currentUser, milestonePhas
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Enter detailed notes about the participant's progress, challenges, and court appearances..."
-              className="min-h-[150px] border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-800 dark:text-slate-200 focus-visible:ring-accent-500 pr-10 resize-none overflow-hidden"
+              className="min-h-[150px] border-slate-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 text-slate-800 dark:text-neutral-200 focus-visible:ring-accent-500 pr-10 resize-none overflow-hidden"
             />
             {isRefining && (
-              <div className="absolute inset-0 bg-white/70 dark:bg-slate-950/70 rounded-md flex items-start justify-center pt-6 z-10 pointer-events-none">
-                <div className="flex items-center gap-2 text-xs font-bold text-accent-600 dark:text-accent-400 animate-pulse bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-accent-200 dark:border-accent-800 shadow-sm">
+              <div className="absolute inset-0 bg-white/70 dark:bg-neutral-950/70 rounded-md flex items-start justify-center pt-6 z-10 pointer-events-none">
+                <div className="flex items-center gap-2 text-xs font-bold text-accent-600 dark:text-accent-400 animate-pulse bg-white dark:bg-neutral-900 px-3 py-1.5 rounded-full border border-accent-200 dark:border-neutral-700 shadow-sm">
                   <Wand2 className="w-3 h-3" />
                   AI is refining...
                 </div>
               </div>
             )}
             {isListening && (
-              <div className="absolute bottom-3 right-3 flex items-center gap-2 text-[10px] font-bold text-red-500 animate-pulse bg-white/80 dark:bg-slate-900/80 px-2 py-1 rounded-full border border-red-100 dark:border-red-900/50">
+              <div className="absolute bottom-3 right-3 flex items-center gap-2 text-[10px] font-bold text-red-500 animate-pulse bg-white/80 dark:bg-neutral-900/80 px-2 py-1 rounded-full border border-red-100 dark:border-red-900/50">
                 <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                 LISTENING...
               </div>
